@@ -55,25 +55,23 @@
   .nb-node{animation:nbNodePulse 3.2s ease-in-out infinite;filter:drop-shadow(0 0 5px rgba(255,77,166,.5))}
   .nb-ring{transform-box:fill-box;transform-origin:center;animation:nbSpin 26s linear infinite}
   .nb-ic{width:24px;height:24px;display:block}
-  /* client logo wall — render dark logos as muted light monochrome on the dark theme */
-  /* original client logos on big white cards, with edge fade + hover focus */
-  .client-marquee{position:relative;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
-  .client-row{display:flex;align-items:center;width:max-content;animation:nbMarquee 65s linear infinite}
-  .client-seg{display:flex;align-items:center;gap:26px;padding-right:26px}
+  /* white logo cards (reused by the partners grid) */
   .client-logo{position:relative;height:120px;width:auto;object-fit:contain;flex:0 0 auto;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:transform .25s ease,box-shadow .25s ease,opacity .25s ease}
-  .client-marquee:hover .client-row{animation-play-state:paused}
-  .client-marquee:hover .client-logo{opacity:.42}
-  .client-logo:hover{opacity:1!important;transform:translateY(-6px) scale(1.06);box-shadow:0 18px 48px -10px rgba(230,0,126,.55),0 12px 30px rgba(0,0,0,.34);z-index:2}
+  .client-logo:hover{transform:translateY(-6px) scale(1.06);box-shadow:0 18px 48px -10px rgba(230,0,126,.55),0 12px 30px rgba(0,0,0,.34);z-index:2}
   /* partners: static centered grid + cursor spotlight */
   .partner-grid{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:20px;position:relative;z-index:1}
   .partner-grid .client-logo{height:104px}
   .partner-spot{position:absolute;inset:0;pointer-events:none;background:radial-gradient(440px circle at var(--mx,50%) var(--my,40%),rgba(230,0,126,.16),transparent 62%);opacity:0;transition:opacity .45s ease;z-index:0}
   .partner-section:hover .partner-spot{opacity:1}
-  @media (prefers-reduced-motion: reduce){
-    .client-row{animation:none;flex-wrap:wrap;width:auto;justify-content:center;gap:20px;padding:0 24px}
-    .client-row > .client-seg{display:contents}
-    .client-row > .client-seg[aria-hidden="true"] .client-logo{display:none}
-  }
+  /* clients — white band, logos float with a center-zoom lens (JS-driven) */
+  .client-band{background:#fff}
+  .client-stage{position:relative;overflow:hidden}
+  .client-stage.is-carousel{height:212px}
+  .client-track{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:14px 30px;padding:6px 24px}
+  .client-track.is-carousel{position:absolute;left:0;top:0;height:100%;flex-wrap:nowrap;justify-content:flex-start;gap:0;padding:0}
+  .client-float{height:96px;width:auto;flex:0 0 auto;display:block}
+  .client-track.is-carousel .client-float{margin:0 20px;transform-origin:center center;will-change:transform,opacity}
+  .client-track:not(.is-carousel) .client-float[aria-hidden="true"]{display:none}
 
   /* ---- film grain (global, static texture) ---- */
   /* film grain — no blend mode (mix-blend on a fixed full-screen layer forces a costly re-blend on every scroll frame) */
@@ -746,17 +744,13 @@ function homePage(t){
     </section>
 
     ${SHOW_CLIENTS ? `
-    <!-- CLIENTS MARQUEE -->
-    <section style="background:var(--s0);padding:60px 0;border-bottom:1px solid var(--b-soft);overflow:hidden">
-      <p class="mono" style="text-align:center;font-size:11px;color:var(--t3);margin:0 0 38px;padding:0 28px">${e(t.clientsTitle)}</p>
-      <div class="client-marquee">
-        <div class="client-row">
-          <div class="client-seg">
-            ${CLIENT_LOGOS.map(l => `<img class="client-logo" src="clientes/${l.f}.png" alt="${e(l.n)}" width="250" height="100" loading="lazy" />`).join('')}
-          </div>
-          <div class="client-seg" aria-hidden="true">
-            ${CLIENT_LOGOS.map(l => `<img class="client-logo" src="clientes/${l.f}.png" alt="" width="250" height="100" loading="lazy" />`).join('')}
-          </div>
+    <!-- CLIENTS — white band, center-zoom float carousel -->
+    <section class="client-band" style="padding:48px 0 54px;overflow:hidden">
+      <p class="mono" style="text-align:center;font-size:11px;color:#8A8A94;margin:0 0 26px;padding:0 28px">${e(t.clientsTitle)}</p>
+      <div class="client-stage" data-cstage>
+        <div class="client-track" data-ctrack>
+          ${CLIENT_LOGOS.map(l => `<img class="client-float" src="clientes/${l.f}.png" alt="${e(l.n)}" width="300" height="118" />`).join('')}
+          ${CLIENT_LOGOS.map(l => `<img class="client-float" src="clientes/${l.f}.png" alt="" aria-hidden="true" width="300" height="118" />`).join('')}
         </div>
       </div>
     </section>` : ''}
@@ -1048,7 +1042,7 @@ function view(){
    ===================================================================== */
 const app = document.getElementById('app');
 let lenis = null;
-const film = { mm:null, splits:[], shader:null };
+const film = { mm:null, splits:[], shader:null, carousel:null };
 const prefersReduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---- WebGL aurora hero ---- */
@@ -1133,11 +1127,58 @@ function startAurora(canvas){
   return { stop(){ running=false; if(raf) cancelAnimationFrame(raf); raf=0; io.disconnect(); window.removeEventListener('resize',resize); const ext=gl.getExtension('WEBGL_lose_context'); if(ext) ext.loseContext(); } };
 }
 
+/* clients — white-band "lens" carousel: continuous scroll + per-logo scale by distance from center */
+function initClientsCarousel(){
+  const stage=document.querySelector('[data-cstage]');
+  if(!stage) return null;
+  const track=stage.querySelector('[data-ctrack]');
+  if(!track) return null;
+  const logos=Array.from(track.children);
+  stage.classList.add('is-carousel'); track.classList.add('is-carousel');
+  let segW=0, stageLeft=0, stageCenter=0, half=1, ready=false;
+  function measure(){
+    segW=track.scrollWidth/2;
+    const r=stage.getBoundingClientRect();
+    stageLeft=r.left; stageCenter=r.left+r.width/2; half=Math.max(1,r.width/2);
+    logos.forEach(l=>{ l._base=l.offsetLeft+l.offsetWidth/2; });
+    ready = segW>10;
+  }
+  let pending=logos.filter(i=>!i.complete).length;
+  if(pending===0) measure();
+  else logos.forEach(i=>{ if(!i.complete) i.addEventListener('load',()=>{ if(--pending<=0) measure(); },{once:true}); });
+  requestAnimationFrame(()=>requestAnimationFrame(measure));
+  let offset=0, last=null, raf=0, running=true;
+  const SPEED=58;
+  function frame(ts){
+    if(!running){ raf=0; return; }
+    if(!ready){ raf=requestAnimationFrame(frame); return; }
+    if(last==null) last=ts;
+    const dt=Math.min(0.05,(ts-last)/1000); last=ts;
+    offset=(offset+SPEED*dt)%segW;
+    track.style.transform='translateX('+(-offset).toFixed(2)+'px)';
+    for(let i=0;i<logos.length;i++){
+      const l=logos[i];
+      const sc=stageLeft+l._base-offset;
+      let d=Math.abs(sc-stageCenter)/(half*0.6); if(d>1) d=1;
+      const tt=1-d, ease=tt*tt*(3-2*tt);
+      l.style.transform='scale('+(0.55+0.95*ease).toFixed(3)+')';
+      l.style.opacity=(0.1+0.9*ease).toFixed(3);
+      l.style.zIndex=(ease*100)|0;
+    }
+    raf=requestAnimationFrame(frame);
+  }
+  const onR=()=>measure();
+  window.addEventListener('resize',onR);
+  raf=requestAnimationFrame(frame);
+  return { stop(){ running=false; if(raf) cancelAnimationFrame(raf); window.removeEventListener('resize',onR); } };
+}
+
 function teardownFilm(){
   try { if(film.mm){ film.mm.revert(); film.mm=null; } } catch(_){}
   film.splits.forEach(s=>{ try{ s.revert(); }catch(_){} });
   film.splits=[];
   if(film.shader){ try{ film.shader.stop(); }catch(_){} film.shader=null; }
+  if(film.carousel){ try{ film.carousel.stop(); }catch(_){} film.carousel=null; }
   if(window.ScrollTrigger){ ScrollTrigger.getAll().forEach(st=>{ try{ st.kill(); }catch(_){} }); }
 }
 
@@ -1261,6 +1302,8 @@ function initFilm(){
 
     return ()=>{ cleanups.forEach(fn=>fn()); };
   });
+
+  if(!prefersReduce()){ film.carousel=initClientsCarousel(); }
 
   if(window.ScrollTrigger){ requestAnimationFrame(()=>{ try{ ScrollTrigger.refresh(); }catch(_){} }); }
 }
