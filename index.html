@@ -773,12 +773,13 @@ function homePage(t){
     </section>
 
     <!-- CTA BAND -->
-    <section style="position:relative;overflow:hidden;background:linear-gradient(110deg,#E6007E 0%,#FF4DA6 100%);padding:clamp(64px,8vw,104px) 28px">
-      <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.14) 1px,transparent 1px);background-size:30px 30px;opacity:0.5;pointer-events:none"></div>
-      <div style="max-width:880px;margin:0 auto;text-align:center;position:relative">
+    <section style="position:relative;overflow:hidden;background:var(--s0);padding:clamp(72px,9vw,124px) 28px;border-top:1px solid var(--b-soft)">
+      <div class="hero-grid" aria-hidden="true" style="opacity:.35"></div>
+      <div class="orb" style="width:640px;height:640px;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(230,0,126,.32),transparent 60%);opacity:.6"></div>
+      <div style="max-width:880px;margin:0 auto;text-align:center;position:relative;z-index:1">
         <h2 data-reveal style="font-family:'Poppins';font-weight:700;font-size:clamp(30px,4.4vw,52px);line-height:1.06;letter-spacing:-0.035em;color:#fff;margin:0 0 18px">${e(t.ctaBandTitle)}</h2>
-        <p data-reveal style="font-size:18px;line-height:1.6;color:rgba(255,255,255,0.9);margin:0 auto 34px;max-width:560px">${e(t.ctaBandSub)}</p>
-        <button data-act="contact" data-magnetic data-reveal style="display:inline-flex;align-items:center;gap:10px;border:none;background:#0A0A0C;color:#fff;font-family:'Poppins';font-weight:600;font-size:17px;cursor:pointer;padding:16px 32px;border-radius:999px">${e(t.ctaBandBtn)} <span style="font-size:18px">&rarr;</span></button>
+        <p data-reveal style="font-size:18px;line-height:1.6;color:var(--t1);margin:0 auto 34px;max-width:560px">${e(t.ctaBandSub)}</p>
+        <button data-act="contact" data-magnetic data-reveal class="cta-glow" style="display:inline-flex;align-items:center;gap:10px;border:none;background:${GRAD};color:#fff;font-family:'Poppins';font-weight:600;font-size:17px;cursor:pointer;padding:16px 32px;border-radius:999px">${e(t.ctaBandBtn)} <span style="font-size:18px">&rarr;</span></button>
       </div>
     </section>
   </div>`;
@@ -885,12 +886,13 @@ function aboutPage(t){
       </div>
     </section>
 
-    <section style="position:relative;overflow:hidden;background:linear-gradient(110deg,#E6007E,#FF4DA6);padding:clamp(56px,7vw,90px) 28px;text-align:center">
-      <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.14) 1px,transparent 1px);background-size:30px 30px;opacity:0.5"></div>
-      <div style="position:relative">
+    <section style="position:relative;overflow:hidden;background:var(--s0);padding:clamp(64px,8vw,104px) 28px;text-align:center;border-top:1px solid var(--b-soft)">
+      <div class="hero-grid" aria-hidden="true" style="opacity:.35"></div>
+      <div class="orb" style="width:560px;height:560px;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(230,0,126,.30),transparent 60%);opacity:.55"></div>
+      <div style="position:relative;z-index:1">
         <h2 data-reveal style="font-family:'Poppins';font-weight:700;font-size:clamp(26px,3.4vw,40px);letter-spacing:-0.03em;color:#fff;margin:0 0 14px">${e(t.aboutCtaTitle)}</h2>
-        <p data-reveal style="font-size:17px;color:rgba(255,255,255,0.9);margin:0 auto 28px;max-width:520px">${e(t.aboutCtaSub)}</p>
-        <button data-act="contact" data-magnetic data-reveal style="display:inline-flex;align-items:center;gap:9px;border:none;background:#0A0A0C;color:#fff;font-family:'Poppins';font-weight:600;font-size:16px;cursor:pointer;padding:15px 30px;border-radius:999px">${e(t.ctaTalk)} <span style="font-size:17px">&rarr;</span></button>
+        <p data-reveal style="font-size:17px;color:var(--t1);margin:0 auto 28px;max-width:520px">${e(t.aboutCtaSub)}</p>
+        <button data-act="contact" data-magnetic data-reveal class="cta-glow" style="display:inline-flex;align-items:center;gap:9px;border:none;background:${GRAD};color:#fff;font-family:'Poppins';font-weight:600;font-size:16px;cursor:pointer;padding:15px 30px;border-radius:999px">${e(t.ctaTalk)} <span style="font-size:17px">&rarr;</span></button>
       </div>
     </section>
   </div>`;
