@@ -150,6 +150,7 @@
     [data-nbfooter]{grid-template-columns:1fr!important}
     [data-nbsvcrow]{grid-template-columns:1fr!important;gap:14px!important}
     [data-nblife]{grid-template-columns:1fr!important}
+    [data-nbcert-div]{display:none!important}
   }
 </style>
 </head>
@@ -212,6 +213,9 @@ const LANG = {
     aiEyebrow:'IA sobre AWS',
     aiTitle:'Listos para la IA, sin perder el control.',
     aiBody:'Te ayudamos a incorporar IA generativa a tu negocio sobre Amazon Bedrock y los servicios de IA de AWS — con la seguridad, la gobernanza y el control de costes que un proyecto serio necesita.',
+    awsCertEyebrow:'Certificaciones AWS',
+    awsCertTitle:'Certificados oficialmente por AWS.',
+    awsCertLede:'Somos AWS Select Tier Consulting Partner, con designaciones en Sector Público y Amazon CloudFront Delivery — respaldados por un equipo certificado por AWS.',
     pillarsEyebrow:'Well-Architected Framework',
     pillarsTitle:'Construimos sobre los seis pilares de AWS.',
     pillarsLede:'Cada arquitectura que diseñamos se apoya en el marco Well-Architected de AWS — el estándar para construir en la nube de forma segura, fiable y eficiente.',
@@ -325,6 +329,9 @@ const LANG = {
     aiEyebrow:'AI on AWS',
     aiTitle:'AI-ready, without losing control.',
     aiBody:'We help you bring generative AI into your business on Amazon Bedrock and AWS AI services — with the security, governance and cost control a serious project requires.',
+    awsCertEyebrow:'AWS Certifications',
+    awsCertTitle:'Officially certified by AWS.',
+    awsCertLede:'We are an AWS Select Tier Consulting Partner, with Public Sector and Amazon CloudFront Delivery designations — backed by an AWS-certified team.',
     pillarsEyebrow:'Well-Architected Framework',
     pillarsTitle:'We build on the six pillars of AWS.',
     pillarsLede:'Every architecture we design rests on the AWS Well-Architected Framework — the standard for building in the cloud securely, reliably and efficiently.',
@@ -602,14 +609,7 @@ function homePage(t){
           <div class="cta-glow" style="position:absolute;left:-14px;top:24px;background:${GRAD};color:#fff;border-radius:999px;padding:11px 20px 11px 16px;display:flex;align-items:center;gap:9px">
             <span style="font-size:15px">&rsaquo;</span><span style="font-family:'Poppins';font-weight:600;font-size:14px">${e(t.heroBadge)}</span>
           </div>
-          <div class="glass" style="position:absolute;right:-12px;bottom:-20px;background:#fff;border-radius:14px;padding:16px 18px;min-width:182px">
-            <div style="font-family:'Poppins';font-weight:700;font-size:13px;color:#0A0A0C;margin-bottom:9px">Consulting Partner</div>
-            <div style="border:1px solid #E3E3E8;border-radius:8px;padding:9px 11px;display:flex;flex-direction:column;gap:2px">
-              <span style="font-family:'Poppins';font-weight:700;font-size:13px;color:#222;letter-spacing:-0.02em">aws partner</span>
-              <span style="font-family:var(--mono);font-weight:700;font-size:10px;color:#444;letter-spacing:0.08em">SELECT TIER</span>
-              <span style="font-size:9px;color:#888;letter-spacing:0.03em">Services</span>
-            </div>
-          </div>
+          <img src="aws/consulting-card.png" alt="AWS Select Tier Consulting Partner" style="position:absolute;right:-14px;bottom:-22px;width:148px;height:auto;display:block;filter:drop-shadow(0 18px 34px rgba(0,0,0,0.5))" />
         </div>
       </div>
     </section>
@@ -679,6 +679,23 @@ function homePage(t){
         <div data-reveal class="mono" style="display:inline-flex;align-items:center;gap:9px;border:1px solid rgba(255,77,166,0.3);border-radius:999px;padding:7px 15px;margin-bottom:22px;font-size:11px;color:#FF4DA6"><span style="width:7px;height:7px;border-radius:50%;background:${GRAD}"></span>${e(t.aiEyebrow)}</div>
         <h2 data-reveal style="font-family:'Poppins';font-weight:700;font-size:clamp(26px,3.6vw,40px);line-height:1.12;letter-spacing:-0.03em;color:#fff;margin:0 auto 18px;max-width:760px">${e(t.aiTitle)}</h2>
         <p data-reveal style="font-size:17px;line-height:1.6;color:var(--t1);margin:0 auto;max-width:600px">${e(t.aiBody)}</p>
+      </div>
+    </section>
+
+    <!-- AWS CERTIFICATIONS -->
+    <section style="background:var(--s1);padding:clamp(60px,8vw,96px) 28px;border-top:1px solid var(--b-soft);position:relative;overflow:hidden">
+      <div class="orb" style="width:520px;height:520px;left:50%;top:18%;transform:translateX(-50%);background:radial-gradient(circle,rgba(230,0,126,.22),transparent 60%);opacity:.35"></div>
+      <div style="position:relative;z-index:1;max-width:980px;margin:0 auto;text-align:center">
+        <div data-reveal style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px"><span style="width:22px;height:2px;background:${GRAD};display:inline-block"></span><span class="mono" style="font-size:11px;color:#FF4DA6">${e(t.awsCertEyebrow)}</span></div>
+        <h2 data-reveal style="font-family:'Poppins';font-weight:700;font-size:clamp(26px,3.4vw,40px);line-height:1.1;letter-spacing:-0.03em;color:#fff;margin:0 0 16px">${e(t.awsCertTitle)}</h2>
+        <p data-reveal style="font-size:17px;line-height:1.6;color:var(--t1);margin:0 auto 40px;max-width:660px">${e(t.awsCertLede)}</p>
+        <div data-reveal class="glass" style="display:inline-flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:clamp(28px,5vw,64px);background:#fff;border:none;border-radius:22px;padding:34px clamp(28px,5vw,56px);box-shadow:0 24px 60px -24px rgba(0,0,0,.6)">
+          <img src="aws/select-tier.png" alt="AWS Partner — Select Tier Services" style="height:96px;width:auto;display:block" />
+          <span style="width:1px;height:80px;background:#E3E3E8" data-nbcert-div></span>
+          <img src="aws/public-sector.png" alt="AWS Partner — Public Sector" style="height:96px;width:auto;display:block" />
+          <span style="width:1px;height:80px;background:#E3E3E8" data-nbcert-div></span>
+          <img src="aws/cloudfront.png" alt="AWS Partner — Amazon CloudFront Delivery" style="height:96px;width:auto;display:block" />
+        </div>
       </div>
     </section>
 
