@@ -70,7 +70,7 @@
   .client-track{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:14px 30px;padding:6px 24px}
   .client-track.is-carousel{position:absolute;left:0;top:0;height:100%;flex-wrap:nowrap;justify-content:flex-start;gap:0;padding:0}
   .client-float{height:96px;width:auto;flex:0 0 auto;display:block}
-  .client-track.is-carousel .client-float{margin:0 20px;transform-origin:center center;will-change:transform,opacity}
+  .client-track.is-carousel .client-float{margin:0 52px;transform-origin:center center;will-change:transform}
   .client-track:not(.is-carousel) .client-float[aria-hidden="true"]{display:none}
 
   /* ---- film grain (global, static texture) ---- */
@@ -1161,8 +1161,7 @@ function initClientsCarousel(){
       const sc=stageLeft+l._base-offset;
       let d=Math.abs(sc-stageCenter)/(half*0.6); if(d>1) d=1;
       const tt=1-d, ease=tt*tt*(3-2*tt);
-      l.style.transform='scale('+(0.55+0.95*ease).toFixed(3)+')';
-      l.style.opacity=(0.1+0.9*ease).toFixed(3);
+      l.style.transform='scale('+(0.72+0.83*ease).toFixed(3)+')';
       l.style.zIndex=(ease*100)|0;
     }
     raf=requestAnimationFrame(frame);
