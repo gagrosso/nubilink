@@ -55,14 +55,14 @@
   .nb-ring{transform-box:fill-box;transform-origin:center;animation:nbSpin 26s linear infinite}
   .nb-ic{width:24px;height:24px;display:block}
   /* client logo wall — render dark logos as muted light monochrome on the dark theme */
-  /* floating monochrome logos on transparent (no card) */
-  .client-row{display:flex;align-items:center;width:max-content;animation:nbMarquee 50s linear infinite}
+  /* original client logos on big white cards */
+  .client-row{display:flex;align-items:center;width:max-content;animation:nbMarquee 65s linear infinite}
   .client-row:hover{animation-play-state:paused}
-  .client-seg{display:flex;align-items:center;gap:58px;padding-right:58px}
-  .client-logo{height:62px;width:auto;object-fit:contain;flex:0 0 auto;opacity:.85;transition:opacity .25s ease}
-  .client-logo:hover{opacity:1}
+  .client-seg{display:flex;align-items:center;gap:26px;padding-right:26px}
+  .client-logo{height:120px;width:auto;object-fit:contain;flex:0 0 auto;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:transform .2s ease}
+  .client-logo:hover{transform:translateY(-4px)}
   @media (prefers-reduced-motion: reduce){
-    .client-row{animation:none;flex-wrap:wrap;width:auto;justify-content:center;gap:30px 50px;padding:0 24px}
+    .client-row{animation:none;flex-wrap:wrap;width:auto;justify-content:center;gap:20px;padding:0 24px}
     .client-row > .client-seg{display:contents}
     .client-row > .client-seg[aria-hidden="true"] .client-logo{display:none}
   }
