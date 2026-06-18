@@ -45,6 +45,17 @@
   @keyframes nbRise{0%{opacity:0;transform:translateY(16px)}100%{opacity:1;transform:translateY(0)}}
   @keyframes nbPulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.25)}}
   .nbRise{animation:nbRise .6s cubic-bezier(0.16,1,0.3,1) both}
+  /* hero cloud-network illustration */
+  @keyframes nbDraw{to{stroke-dashoffset:0}}
+  @keyframes nbNodePulse{0%,100%{opacity:.75}50%{opacity:1}}
+  @keyframes nbSpin{to{transform:rotate(360deg)}}
+  @keyframes nbFloatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .nb-art{animation:nbFloatY 9s ease-in-out infinite}
+  .nb-link,.nb-hex{stroke-dasharray:1;stroke-dashoffset:1;animation:nbDraw 1.9s cubic-bezier(.16,1,.3,1) forwards}
+  .nb-hex{animation-duration:2.8s;animation-delay:.25s}
+  .nb-node{animation:nbNodePulse 3.2s ease-in-out infinite;filter:drop-shadow(0 0 5px rgba(255,77,166,.5))}
+  .nb-ring{transform-box:fill-box;transform-origin:center;animation:nbSpin 26s linear infinite}
+  .nb-ic{width:24px;height:24px;display:block}
 
   /* ---- film grain (global, static texture) ---- */
   .nb-grain{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:90;opacity:.045;mix-blend-mode:overlay}
@@ -406,6 +417,47 @@ const e = (v) => String(v == null ? '' : v)
 const GRAD = 'linear-gradient(95deg,#E6007E,#FF4DA6)';
 const GRADTEXT = 'background:linear-gradient(95deg,#E6007E,#FF4DA6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent';
 
+/* ---------- line icons (stroke, currentColor) ---------- */
+const ICON = {
+  ops:'<path d="M3 12h4l3 8 4-16 3 8h4"/>',
+  sec:'<path d="M12 3l7 3v5c0 5-3.4 8-7 9-3.6-1-7-4-7-9V6z"/>',
+  rel:'<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
+  perf:'<path d="M13 3L5 13h6l-1 8 8-11h-6z"/>',
+  cost:'<path d="M3 7l6 6 4-4 8 8"/><path d="M21 13v4h-4"/>',
+  sus:'<path d="M5 20c0-8 5-13 14-14 1 9-4 15-14 14z"/><path d="M5 20c3-4 6-6 9-7"/>',
+  support:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/><path d="M5.6 5.6l3.4 3.4M15 15l3.4 3.4M18.4 5.6L15 9M9 15l-3.4 3.4"/>',
+  billing:'<path d="M5 3v18l2-1 2 1 2-1 2 1 2-1 2 1V3l-2 1-2-1-2 1-2-1-2 1z"/><path d="M9 8h6M9 12h6"/>',
+  tailored:'<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',
+  staff:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 5.5a3.2 3.2 0 0 1 0 6M21 20c0-2.4-1.4-4.5-3.5-5.5"/>'
+};
+const PILLAR_ICONS = ['ops','sec','rel','perf','cost','sus'];
+const SERVICE_ICONS = ['support','billing','tailored','staff'];
+const ic = (name,size) => `<svg class="nb-ic" viewBox="0 0 24 24" width="${size||24}" height="${size||24}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[name]||''}</svg>`;
+
+/* ---------- hero cloud-network illustration (custom SVG, royalty-free, animated) ---------- */
+function heroArt(){
+  const hub={x:220,y:170};
+  const nodes=[
+    {x:84,y:74,l:'S3'},{x:356,y:66,l:'EC2'},{x:392,y:186,l:'RDS'},
+    {x:320,y:288,l:'Bedrock'},{x:108,y:290,l:'Lambda'},{x:54,y:178,l:'VPC'}
+  ];
+  const spokes=nodes.map((n,i)=>`<line class="nb-link" style="animation-delay:${(0.2+i*0.12).toFixed(2)}s" pathLength="1" x1="${hub.x}" y1="${hub.y}" x2="${n.x}" y2="${n.y}" stroke="url(#nbLinkG)" stroke-width="1.3"/>`).join('');
+  const hex=`<polygon class="nb-hex" pathLength="1" points="${nodes.map(n=>n.x+','+n.y).join(' ')}" fill="none" stroke="rgba(255,77,166,0.22)" stroke-width="1"/>`;
+  const dots=nodes.map((n,i)=>`<text x="${n.x}" y="${n.y-15}" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9" letter-spacing="1" fill="#9C9C9D">${n.l}</text><g class="nb-node" style="animation-delay:${(i*0.3).toFixed(2)}s"><circle cx="${n.x}" cy="${n.y}" r="9" fill="#120a12" stroke="url(#nbLinkG)" stroke-width="1.4"/><circle cx="${n.x}" cy="${n.y}" r="3" fill="#FF4DA6"/></g>`).join('');
+  return `
+  <svg class="nb-art" viewBox="0 0 440 340" preserveAspectRatio="xMidYMid meet" style="position:absolute;inset:0;width:100%;height:100%" role="img" aria-label="Red de servicios cloud de Nubilink sobre AWS">
+    <defs><linearGradient id="nbLinkG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E6007E"/><stop offset="1" stop-color="#FF4DA6"/></linearGradient></defs>
+    ${hex}
+    ${spokes}
+    <circle class="nb-ring" cx="${hub.x}" cy="${hub.y}" r="46" fill="none" stroke="rgba(255,77,166,0.28)" stroke-width="1" stroke-dasharray="3 8"/>
+    ${dots}
+    <g class="nb-node">
+      <circle cx="${hub.x}" cy="${hub.y}" r="28" fill="#0d070d" stroke="url(#nbLinkG)" stroke-width="1.8"/>
+      <g transform="translate(202,152) scale(1.45)"><path d="M17.5 19a4.5 4.5 0 0 0 0-9h-1.8A7 7 0 1 0 4 16.5" fill="none" stroke="#FF4DA6" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></g>
+    </g>
+  </svg>`;
+}
+
 /* ---------- views ---------- */
 function navBar(t){
   const navBtn = (act, label, active) =>
@@ -479,8 +531,9 @@ function homePage(t){
           </div>
         </div>
         <div data-reveal style="position:relative">
-          <div class="glass" style="position:relative;border-radius:24px;overflow:hidden;aspect-ratio:4/3;box-shadow:0 40px 90px -30px rgba(0,0,0,0.7)">
-            <img src="https://nubilink.com/wp-content/uploads/2024/10/Img-sala-de-reuniones-equipo-de-trabajo.png" onerror="this.style.opacity='0'" alt="Equipo Nubilink" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" />
+          <div style="position:relative;border-radius:24px;overflow:hidden;aspect-ratio:4/3;box-shadow:0 40px 90px -30px rgba(0,0,0,0.7);border:1px solid var(--b-soft);background:radial-gradient(120% 100% at 50% 32%,#17121b,#0b0a0e)">
+            <div class="hero-grid" style="opacity:.32"></div>
+            ${heroArt()}
           </div>
           <div class="cta-glow" style="position:absolute;left:-14px;top:24px;background:${GRAD};color:#fff;border-radius:999px;padding:11px 20px 11px 16px;display:flex;align-items:center;gap:9px">
             <span style="font-size:15px">&rsaquo;</span><span style="font-family:'Poppins';font-weight:600;font-size:14px">${e(t.heroBadge)}</span>
@@ -534,11 +587,11 @@ function homePage(t){
       </div>
       <div class="svc-viewport">
         <div class="svc-track" id="svcTrack">
-          ${t.services.map(s => `
+          ${t.services.map((s,i) => `
           <div class="svc-panel glass" data-name="${e(s.name.toUpperCase())}" style="border-radius:22px;padding:38px;display:flex;flex-direction:column">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px">
-              <span class="grad-text" style="font-family:'Poppins';font-weight:700;font-size:15px;letter-spacing:0.06em">${e(s.num)} / 04</span>
-              <span style="font-size:20px;color:#FF4DA6">&rarr;</span>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+              <span style="display:inline-flex;width:48px;height:48px;align-items:center;justify-content:center;border:1px solid var(--b-soft);border-radius:13px;color:#FF4DA6;background:rgba(255,77,166,0.06)">${ic(SERVICE_ICONS[i],24)}</span>
+              <span class="grad-text" style="font-family:'Poppins';font-weight:700;font-size:14px;letter-spacing:0.06em">${e(s.num)} / 04</span>
             </div>
             <h3 style="font-family:'Poppins';font-weight:600;font-size:clamp(22px,2.4vw,27px);letter-spacing:-0.02em;color:#fff;margin:0 0 12px">${e(s.name)}</h3>
             <p style="font-size:15.5px;line-height:1.6;color:var(--t1);margin:0 0 22px;flex:1">${e(s.long)}</p>
@@ -575,9 +628,12 @@ function homePage(t){
           <p data-reveal style="font-size:17px;line-height:1.6;color:var(--t1);margin:0">${e(t.pillarsLede)}</p>
         </div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px" data-nbgrid3>
-          ${t.pillars.map(p => `
+          ${t.pillars.map((p,i) => `
           <div class="glass" data-reveal style="border-radius:18px;padding:30px 26px">
-            <div class="grad-text" style="font-family:'Poppins';font-weight:700;font-size:14px;margin-bottom:14px">${e(p.num)}</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+              <span style="display:inline-flex;width:42px;height:42px;align-items:center;justify-content:center;border:1px solid var(--b-soft);border-radius:11px;color:#FF4DA6;background:rgba(255,77,166,0.06)">${ic(PILLAR_ICONS[i],22)}</span>
+              <span class="grad-text" style="font-family:var(--mono);font-weight:700;font-size:12px">${e(p.num)}</span>
+            </div>
             <h3 style="font-family:'Poppins';font-weight:600;font-size:18px;color:#fff;margin:0 0 8px;letter-spacing:-0.01em">${e(p.name)}</h3>
             <p style="font-size:14px;line-height:1.55;color:var(--t2);margin:0">${e(p.desc)}</p>
           </div>`).join('')}
@@ -733,8 +789,9 @@ function aboutPage(t){
 
     <section style="background:var(--s1);padding:clamp(48px,6vw,80px) 28px;border-top:1px solid var(--b-soft)">
       <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center" data-nbhalf>
-        <div class="glass" data-reveal style="position:relative;border-radius:22px;overflow:hidden;aspect-ratio:5/4">
-          <img src="https://nubilink.com/wp-content/uploads/2024/10/image-men-computer-values.png" onerror="this.style.opacity='0'" alt="Equipo Nubilink trabajando" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" />
+        <div class="glass" data-reveal style="position:relative;border-radius:22px;overflow:hidden;aspect-ratio:5/4;background:var(--s2)">
+          <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1400&q=70" onerror="this.style.opacity='0'" alt="Equipo de Nubilink colaborando" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(.55) contrast(1.06) brightness(.8)" />
+          <div aria-hidden="true" style="position:absolute;inset:0;background:linear-gradient(145deg,rgba(230,0,126,0.42),rgba(10,10,12,0.12) 42%,rgba(10,10,12,0.82));pointer-events:none"></div>
         </div>
         <div data-reveal>
           <h2 style="font-family:'Poppins';font-weight:600;font-size:26px;letter-spacing:-0.025em;color:#fff;margin:0 0 16px">${e(t.teamTitle)}</h2>
