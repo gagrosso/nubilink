@@ -18,7 +18,6 @@
 <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
 <style>
   *{box-sizing:border-box}
   :root{
@@ -29,7 +28,6 @@
     --grad:linear-gradient(95deg,#E6007E,#FF4DA6);
     --mono:ui-monospace,'SFMono-Regular',Menlo,Consolas,'Liberation Mono',monospace;
   }
-  html{scroll-behavior:smooth}
   body{margin:0;font-family:'Poppins',system-ui,sans-serif;color:var(--t0);background:var(--s0);-webkit-font-smoothing:antialiased;overflow-x:hidden}
   a{color:inherit;text-decoration:none}
   ::selection{background:#FF3D9C;color:#0A0A0C}
@@ -57,13 +55,13 @@
   .nb-ring{transform-box:fill-box;transform-origin:center;animation:nbSpin 26s linear infinite}
   .nb-ic{width:24px;height:24px;display:block}
   /* client logo wall — render dark logos as muted light monochrome on the dark theme */
-  .client-row{display:flex;width:max-content;animation:nbMarquee 64s linear infinite}
+  .client-row{display:flex;align-items:center;width:max-content;animation:nbMarquee 55s linear infinite}
   .client-row:hover{animation-play-state:paused}
-  .client-seg{display:flex;align-items:center;gap:54px;padding-right:54px}
-  .client-logo{height:32px;width:auto;object-fit:contain;filter:grayscale(1) invert(1);opacity:.62;transition:opacity .25s ease}
-  .client-logo:hover{opacity:1}
+  .client-seg{display:flex;align-items:center;gap:24px;padding-right:24px}
+  .client-logo{height:76px;width:auto;box-sizing:border-box;background:#fff;border-radius:14px;padding:16px 30px;object-fit:contain;flex:0 0 auto;box-shadow:0 8px 26px rgba(0,0,0,.3);transition:transform .2s ease}
+  .client-logo:hover{transform:translateY(-4px)}
   @media (prefers-reduced-motion: reduce){
-    .client-row{animation:none;flex-wrap:wrap;width:auto;justify-content:center;gap:26px 44px;padding:0 24px}
+    .client-row{animation:none;flex-wrap:wrap;width:auto;justify-content:center;gap:18px;padding:0 24px}
     .client-row > .client-seg{display:contents}
     .client-row > .client-seg[aria-hidden="true"] .client-logo{display:none}
   }
@@ -1293,16 +1291,9 @@ function boot(){
     if(window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
     if(window.SplitText) gsap.registerPlugin(SplitText);
     document.documentElement.classList.add('gsap-ready');
-    // Lenis smooth scroll (skip on reduced-motion / touch)
-    const coarse=window.matchMedia('(pointer: coarse)').matches;
-    if(window.Lenis && !prefersReduce() && !coarse){
-      try{
-        lenis=new Lenis({lerp:0.1, autoRaf:false, smoothWheel:true});
-        gsap.ticker.add((t)=> lenis.raf(t*1000));
-        gsap.ticker.lagSmoothing(0);
-        if(window.ScrollTrigger) lenis.on('scroll', ScrollTrigger.update);
-      }catch(_){ lenis=null; }
-    }
+    // Native scroll (Apple-style momentum) — no JS smooth-scroll layer.
+    // ScrollTrigger listens to native scroll directly.
+    gsap.ticker.lagSmoothing(0);
   }
   applyView();
 }
