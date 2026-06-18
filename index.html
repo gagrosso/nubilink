@@ -58,11 +58,12 @@
   .nb-ic{width:24px;height:24px;display:block}
 
   /* ---- film grain (global, static texture) ---- */
-  .nb-grain{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:90;opacity:.045;mix-blend-mode:overlay}
+  /* film grain — no blend mode (mix-blend on a fixed full-screen layer forces a costly re-blend on every scroll frame) */
+  .nb-grain{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:90;opacity:.05}
 
   /* ---- reveal pre-hide: ONLY when motion allowed and engine present (no FOUC / no stuck-hidden) ---- */
   @media (prefers-reduced-motion: no-preference){
-    html.gsap-ready [data-reveal]{opacity:0;will-change:transform,opacity}
+    html.gsap-ready [data-reveal]{opacity:0}
     html.gsap-ready [data-hero-h1]{opacity:0}
   }
 
@@ -463,7 +464,7 @@ function navBar(t){
   const navBtn = (act, label, active) =>
     `<button data-act="${act}" class="navlink" style="background:none;border:none;cursor:pointer;font-family:'Poppins';font-size:15px;font-weight:500;color:#fff;padding:6px 0;position:relative">${e(label)}${active?'<span style="position:absolute;left:0;right:0;bottom:-3px;height:2px;background:'+GRAD+'"></span>':''}</button>`;
   return `
-  <header data-header style="position:sticky;top:0;z-index:80;background:rgba(10,10,12,0.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--b-soft)">
+  <header data-header style="position:sticky;top:0;z-index:80;background:rgba(10,10,12,0.86);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--b-soft)">
     <div style="max-width:1220px;margin:0 auto;padding:0 28px;height:74px;display:flex;align-items:center;justify-content:space-between;gap:24px">
       <button data-act="home" style="display:flex;flex-direction:column;align-items:flex-start;gap:1px;background:none;border:none;cursor:pointer;padding:0">
         <span style="font-family:'Poppins';font-weight:700;font-size:23px;letter-spacing:-0.03em;color:#fff;line-height:1">nubilin<span class="grad-text">k</span></span>
@@ -975,7 +976,7 @@ function startAurora(canvas){
     'uniform vec2 uRes;uniform float uTime;',
     'float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
     'float noise(vec2 p){vec2 i=floor(p),f=fract(p);float a=hash(i),b=hash(i+vec2(1.,0.)),c=hash(i+vec2(0.,1.)),d=hash(i+vec2(1.,1.));vec2 u=f*f*(3.-2.*f);return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);}',
-    'float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p*=2.02;a*=.5;}return v;}',
+    'float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<3;i++){v+=a*noise(p);p*=2.02;a*=.5;}return v;}',
     'void main(){',
     ' vec2 uv=gl_FragCoord.xy/uRes;float asp=uRes.x/uRes.y;vec2 p=vec2(uv.x*asp,uv.y);',
     ' float t=uTime*0.05;',
@@ -1014,21 +1015,27 @@ function startAurora(canvas){
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
   const uTime = gl.getUniformLocation(prog,'uTime');
   const uRes = gl.getUniformLocation(prog,'uRes');
-  let raf=0, startTs=null, running=true, inView=true;
+  let raf=0, startTs=null, running=true, inView=true, lastDraw=-999;
   function resize(){
-    const dpr=Math.min(2, window.devicePixelRatio||1);
+    // The aurora is soft, so render at a capped low resolution (cheap on the GPU,
+    // invisible when upscaled) — this keeps scrolling fluid even on retina/full-screen.
     const r=canvas.getBoundingClientRect();
-    const w=Math.max(1,Math.round(r.width*dpr)), h=Math.max(1,Math.round(r.height*dpr));
+    const cssW=r.width||canvas.clientWidth||0, cssH=r.height||canvas.clientHeight||0;
+    if(cssW<2||cssH<2) return; // not laid out yet — wait
+    const scl=Math.min(1, 880/Math.max(cssW,cssH));
+    const w=Math.max(2,Math.round(cssW*scl)), h=Math.max(2,Math.round(cssH*scl));
     if(canvas.width!==w||canvas.height!==h){ canvas.width=w; canvas.height=h; gl.viewport(0,0,w,h); }
     gl.uniform2f(uRes, canvas.width, canvas.height);
   }
   function frame(ts){
     if(!running||!inView){ raf=0; return; }
+    raf=requestAnimationFrame(frame);
+    if(ts-lastDraw < 32) return; // cap ~30fps — the aurora drifts slowly, frees frames for scroll
+    lastDraw=ts;
     if(startTs===null) startTs=ts;
     resize();
     gl.uniform1f(uTime,(ts-startTs)/1000);
     gl.drawArrays(gl.TRIANGLES,0,3);
-    raf=requestAnimationFrame(frame);
   }
   const io=new IntersectionObserver(es=>{
     es.forEach(en=>{ inView=en.isIntersecting; if(inView && running && !raf){ raf=requestAnimationFrame(frame);} });
@@ -1132,7 +1139,7 @@ function initFilm(){
         const dist=()=> Math.max(0, track.scrollWidth - (vp?vp.clientWidth:window.innerWidth));
         let cur=-1;
         gsap.to(track,{x:()=>-dist(),ease:'none',
-          scrollTrigger:{trigger:act,pin:true,scrub:1,start:'top top',
+          scrollTrigger:{trigger:act,pin:true,scrub:0.5,start:'top top',
             end:()=>'+='+dist(), invalidateOnRefresh:true, anticipatePin:1,
             onUpdate(self){
               const pr=self.progress;
