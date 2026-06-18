@@ -1,0 +1,9 @@
+# Local tooling / OS
+.claude/
+.DS_Store
+
+# Claude Design source artifacts (inputs, not part of the deployed site)
+Nubilink.dc.html
+support.js
+_ds/
+uploads/
