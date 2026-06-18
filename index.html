@@ -56,6 +56,17 @@
   .nb-node{animation:nbNodePulse 3.2s ease-in-out infinite;filter:drop-shadow(0 0 5px rgba(255,77,166,.5))}
   .nb-ring{transform-box:fill-box;transform-origin:center;animation:nbSpin 26s linear infinite}
   .nb-ic{width:24px;height:24px;display:block}
+  /* client logo wall — render dark logos as muted light monochrome on the dark theme */
+  .client-row{display:flex;width:max-content;animation:nbMarquee 64s linear infinite}
+  .client-row:hover{animation-play-state:paused}
+  .client-seg{display:flex;align-items:center;gap:54px;padding-right:54px}
+  .client-logo{height:32px;width:auto;object-fit:contain;filter:grayscale(1) invert(1);opacity:.62;transition:opacity .25s ease}
+  .client-logo:hover{opacity:1}
+  @media (prefers-reduced-motion: reduce){
+    .client-row{animation:none;flex-wrap:wrap;width:auto;justify-content:center;gap:26px 44px;padding:0 24px}
+    .client-row > .client-seg{display:contents}
+    .client-row > .client-seg[aria-hidden="true"] .client-logo{display:none}
+  }
 
   /* ---- film grain (global, static texture) ---- */
   /* film grain — no blend mode (mix-blend on a fixed full-screen layer forces a costly re-blend on every scroll frame) */
@@ -385,7 +396,31 @@ const OFFICES = {
   ]
 };
 
-const CLIENTS = ['Universidad Siglo 21','Unitech','UdeMM','Empirical','E-Wave','Infocontrol','Disbyte','Apex','Cloud Vision','GDS','KD-Soft','Isur','Grupo Conectar','Process Solutions','Taker','GAD Solutions','CT Developers','TraSus'];
+const CLIENT_LOGOS = [
+  {f:'Uni.-Siglo-21', n:'Universidad Siglo 21'},
+  {f:'Municipalidad-de-Cordoba', n:'Municipalidad de Córdoba'},
+  {f:'Poder-judicial', n:'Poder Judicial'},
+  {f:'Municipalidad-de-San-Luis', n:'Municipalidad de San Luis'},
+  {f:'Municipalidad-de-Villa-Maria', n:'Municipalidad de Villa María'},
+  {f:'Gob-de-Rio-Cuarto', n:'Gobierno de Río Cuarto'},
+  {f:'Cordoba-municipio', n:'Córdoba Capital'},
+  {f:'Empirical', n:'Empirical'},
+  {f:'E-Wave', n:'E-Wave'},
+  {f:'Cloud-vision', n:'Cloudy Vision'},
+  {f:'Infocontrol', n:'Infocontrol'},
+  {f:'Disbyte', n:'Disbyte'},
+  {f:'Apex', n:'Apex'},
+  {f:'GDS', n:'GDS'},
+  {f:'KD-Soft', n:'KD-Soft'},
+  {f:'Isur', n:'Isur'},
+  {f:'Grupo-conectar', n:'Grupo Conectar'},
+  {f:'Grupo-17', n:'Grupo 17'},
+  {f:'Process-Solutions', n:'Process Solutions'},
+  {f:'GAD-Solutions', n:'GAD Solutions'},
+  {f:'CT-Developers', n:'CT Developers'},
+  {f:'E-solutions', n:'E-Solutions'},
+  {f:'H-virtual', n:'H-Virtual'}
+];
 
 const SOCIAL = [
   {label:'in', href:'https://www.linkedin.com/company/nubilink'},
@@ -667,13 +702,13 @@ function homePage(t){
     ${SHOW_CLIENTS ? `
     <!-- CLIENTS MARQUEE -->
     <section style="background:var(--s0);padding:60px 0;border-bottom:1px solid var(--b-soft);overflow:hidden">
-      <p class="mono" style="text-align:center;font-size:11px;color:var(--t3);margin:0 0 34px;padding:0 28px">${e(t.clientsTitle)}</p>
-      <div style="display:flex;width:max-content;animation:nbMarquee 40s linear infinite">
-        <div style="display:flex;align-items:center;gap:56px;padding-right:56px">
-          ${CLIENTS.map(c => `<span style="font-family:'Poppins';font-weight:600;font-size:21px;color:#46464F;white-space:nowrap;letter-spacing:-0.01em">${e(c)}</span>`).join('')}
+      <p class="mono" style="text-align:center;font-size:11px;color:var(--t3);margin:0 0 38px;padding:0 28px">${e(t.clientsTitle)}</p>
+      <div class="client-row">
+        <div class="client-seg">
+          ${CLIENT_LOGOS.map(l => `<img class="client-logo" src="clientes/${l.f}.png" alt="${e(l.n)}" width="250" height="100" loading="lazy" />`).join('')}
         </div>
-        <div style="display:flex;align-items:center;gap:56px;padding-right:56px" aria-hidden="true">
-          ${CLIENTS.map(c => `<span style="font-family:'Poppins';font-weight:600;font-size:21px;color:#46464F;white-space:nowrap;letter-spacing:-0.01em">${e(c)}</span>`).join('')}
+        <div class="client-seg" aria-hidden="true">
+          ${CLIENT_LOGOS.map(l => `<img class="client-logo" src="clientes/${l.f}.png" alt="" width="250" height="100" loading="lazy" />`).join('')}
         </div>
       </div>
     </section>` : ''}
