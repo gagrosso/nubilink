@@ -55,15 +55,19 @@
   .nb-ring{transform-box:fill-box;transform-origin:center;animation:nbSpin 26s linear infinite}
   .nb-ic{width:24px;height:24px;display:block}
   /* client logo wall — render dark logos as muted light monochrome on the dark theme */
-  /* original client logos on big white cards */
+  /* original client logos on big white cards, with edge fade + hover focus */
+  .client-marquee{position:relative;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
   .client-row{display:flex;align-items:center;width:max-content;animation:nbMarquee 65s linear infinite}
-  .client-row:hover{animation-play-state:paused}
   .client-seg{display:flex;align-items:center;gap:26px;padding-right:26px}
-  .client-logo{height:120px;width:auto;object-fit:contain;flex:0 0 auto;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:transform .2s ease}
-  .client-logo:hover{transform:translateY(-4px)}
-  /* partners: static centered grid of the same white cards */
-  .partner-grid{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:20px}
+  .client-logo{position:relative;height:120px;width:auto;object-fit:contain;flex:0 0 auto;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:transform .25s ease,box-shadow .25s ease,opacity .25s ease}
+  .client-marquee:hover .client-row{animation-play-state:paused}
+  .client-marquee:hover .client-logo{opacity:.42}
+  .client-logo:hover{opacity:1!important;transform:translateY(-6px) scale(1.06);box-shadow:0 18px 48px -10px rgba(230,0,126,.55),0 12px 30px rgba(0,0,0,.34);z-index:2}
+  /* partners: static centered grid + cursor spotlight */
+  .partner-grid{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:20px;position:relative;z-index:1}
   .partner-grid .client-logo{height:104px}
+  .partner-spot{position:absolute;inset:0;pointer-events:none;background:radial-gradient(440px circle at var(--mx,50%) var(--my,40%),rgba(230,0,126,.16),transparent 62%);opacity:0;transition:opacity .45s ease;z-index:0}
+  .partner-section:hover .partner-spot{opacity:1}
   @media (prefers-reduced-motion: reduce){
     .client-row{animation:none;flex-wrap:wrap;width:auto;justify-content:center;gap:20px;padding:0 24px}
     .client-row > .client-seg{display:contents}
@@ -77,6 +81,7 @@
   /* ---- reveal pre-hide: ONLY when motion allowed and engine present (no FOUC / no stuck-hidden) ---- */
   @media (prefers-reduced-motion: no-preference){
     html.gsap-ready [data-reveal]{opacity:0}
+    html.gsap-ready [data-reveal-pop]{opacity:0}
     html.gsap-ready [data-hero-h1]{opacity:0}
   }
 
@@ -717,15 +722,17 @@ function homePage(t){
     </section>
 
     <!-- PARTNERS -->
-    <section style="background:var(--s1);padding:clamp(64px,8vw,104px) 28px;border-top:1px solid var(--b-soft)">
-      <div style="max-width:1100px;margin:0 auto">
+    <section class="partner-section" data-partners style="position:relative;overflow:hidden;background:var(--s1);padding:clamp(64px,8vw,104px) 28px;border-top:1px solid var(--b-soft)">
+      <div class="partner-spot" aria-hidden="true"></div>
+      <div class="orb" style="width:560px;height:560px;left:50%;top:14%;transform:translateX(-50%);background:radial-gradient(circle,rgba(230,0,126,.26),transparent 60%);opacity:.4"></div>
+      <div style="position:relative;z-index:1;max-width:1100px;margin:0 auto">
         <div style="max-width:680px;margin-bottom:44px">
           <div data-reveal style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><span style="width:22px;height:2px;background:${GRAD};display:inline-block"></span><span class="mono" style="font-size:11px;color:#FF4DA6">${e(t.partnersEyebrow)}</span></div>
           <h2 data-reveal style="font-family:'Poppins';font-weight:700;font-size:clamp(26px,3.4vw,40px);line-height:1.1;letter-spacing:-0.03em;color:#fff;margin:0 0 16px">${e(t.partnersTitle)}</h2>
           <p data-reveal style="font-size:17px;line-height:1.6;color:var(--t1);margin:0">${e(t.partnersLede)}</p>
         </div>
         <div class="partner-grid">
-          ${PARTNERS.map(p => `<img class="client-logo" data-reveal src="partners/${p.f}.png" alt="${e(p.n)}" width="300" height="130" loading="lazy" />`).join('')}
+          ${PARTNERS.map(p => `<img class="client-logo" data-reveal-pop src="partners/${p.f}.png" alt="${e(p.n)}" width="300" height="130" loading="lazy" />`).join('')}
         </div>
       </div>
     </section>
@@ -734,12 +741,14 @@ function homePage(t){
     <!-- CLIENTS MARQUEE -->
     <section style="background:var(--s0);padding:60px 0;border-bottom:1px solid var(--b-soft);overflow:hidden">
       <p class="mono" style="text-align:center;font-size:11px;color:var(--t3);margin:0 0 38px;padding:0 28px">${e(t.clientsTitle)}</p>
-      <div class="client-row">
-        <div class="client-seg">
-          ${CLIENT_LOGOS.map(l => `<img class="client-logo" src="clientes/${l.f}.png" alt="${e(l.n)}" width="250" height="100" loading="lazy" />`).join('')}
-        </div>
-        <div class="client-seg" aria-hidden="true">
-          ${CLIENT_LOGOS.map(l => `<img class="client-logo" src="clientes/${l.f}.png" alt="" width="250" height="100" loading="lazy" />`).join('')}
+      <div class="client-marquee">
+        <div class="client-row">
+          <div class="client-seg">
+            ${CLIENT_LOGOS.map(l => `<img class="client-logo" src="clientes/${l.f}.png" alt="${e(l.n)}" width="250" height="100" loading="lazy" />`).join('')}
+          </div>
+          <div class="client-seg" aria-hidden="true">
+            ${CLIENT_LOGOS.map(l => `<img class="client-logo" src="clientes/${l.f}.png" alt="" width="250" height="100" loading="lazy" />`).join('')}
+          </div>
         </div>
       </div>
     </section>` : ''}
@@ -1145,6 +1154,7 @@ function initFilm(){
 
     if(isReduce){
       gsap.set('[data-reveal]', {opacity:1, y:0, clearProps:'opacity,transform'});
+      gsap.set('[data-reveal-pop]', {opacity:1, y:0, scale:1, clearProps:'opacity,transform'});
       if(h1) gsap.set(h1,{autoAlpha:1});
       document.querySelectorAll('[data-countup]').forEach(el=>{ el.textContent=el.getAttribute('data-countup')+(el.getAttribute('data-suffix')||''); });
       return;
@@ -1168,6 +1178,22 @@ function initFilm(){
       start:'top 88%', once:true,
       onEnter: b => gsap.fromTo(b, {opacity:0,y:26}, {opacity:1,y:0,duration:0.72,ease:'power3.out',stagger:0.09,overwrite:true})
     });
+
+    // partner cards — pop in with a scale spring
+    ScrollTrigger.batch('[data-reveal-pop]', {
+      start:'top 88%', once:true,
+      onEnter: b => gsap.fromTo(b, {opacity:0,y:30,scale:0.9}, {opacity:1,y:0,scale:1,duration:0.7,ease:'back.out(1.5)',stagger:0.08,overwrite:true})
+    });
+
+    // partners — magenta cursor spotlight (fine pointer only)
+    if(isDesk){
+      const psec=document.querySelector('[data-partners]');
+      if(psec){
+        const onMove=(ev)=>{ const r=psec.getBoundingClientRect(); psec.style.setProperty('--mx', ((ev.clientX-r.left)/r.width*100).toFixed(1)+'%'); psec.style.setProperty('--my', ((ev.clientY-r.top)/r.height*100).toFixed(1)+'%'); };
+        psec.addEventListener('mousemove', onMove);
+        cleanups.push(()=>psec.removeEventListener('mousemove', onMove));
+      }
+    }
 
     // count-up numbers
     document.querySelectorAll('[data-countup]').forEach(el=>{
