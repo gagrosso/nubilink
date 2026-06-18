@@ -13,9 +13,14 @@ Página web de una sola página (single-file) totalmente autosuficiente: **HTML 
 
 - **4 secciones**: Inicio, Nubilink (empresa), Servicios y Contacto, con navegación tipo SPA.
 - **Bilingüe** español / inglés con un selector que actualiza también `<html lang>` y el título.
-- **Formulario de contacto** con validación y estado de éxito.
+- **Capa de movimiento "Líneas de Luz"**: hero con aurora WebGL, revelados al scroll, acto de servicios con travelling horizontal, count-up del 25%, CTA magnético y scroll suave (GSAP + Lenis vía CDN). Degrada a un sitio estático si un CDN falla o si el usuario pidió menos movimiento.
+- **Formulario de contacto** con validación, accesibilidad (aria-live) y entrega real.
 - **Responsive** desde 375px, con menú hamburguesa en móvil.
-- Respeta `prefers-reduced-motion`.
+- Respeta `prefers-reduced-motion` y `pointer: coarse`.
+
+### Formulario de contacto
+
+Por defecto el formulario abre el correo del visitante con un borrador a `info@nubilink.com` (más botones directos de e-mail y WhatsApp). Para envío silencioso en segundo plano, crea una clave gratuita en [web3forms.com](https://web3forms.com) (1 minuto, sin backend) y pégala en la constante `FORM_ACCESS_KEY` dentro de `index.html`.
 
 ## Desarrollo local
 
