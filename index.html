@@ -61,6 +61,9 @@
   .client-seg{display:flex;align-items:center;gap:26px;padding-right:26px}
   .client-logo{height:120px;width:auto;object-fit:contain;flex:0 0 auto;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:transform .2s ease}
   .client-logo:hover{transform:translateY(-4px)}
+  /* partners: static centered grid of the same white cards */
+  .partner-grid{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:20px}
+  .partner-grid .client-logo{height:104px}
   @media (prefers-reduced-motion: reduce){
     .client-row{animation:none;flex-wrap:wrap;width:auto;justify-content:center;gap:20px;padding:0 24px}
     .client-row > .client-seg{display:contents}
@@ -226,6 +229,9 @@ const LANG = {
       {num:'03', title:'Equipo certificado en AWS', desc:'Ingenieros que cumplen los estándares técnicos más exigentes de AWS.'},
       {num:'04', title:'Optimización de costes continua', desc:'FinOps en cada decisión de arquitectura para reducir tu gasto cloud.'}
     ],
+    partnersEyebrow:'Acuerdos',
+    partnersTitle:'Colaboración estratégica con partners asociados.',
+    partnersLede:'Trabajamos con partners asociados en casos específicos, atendiendo a los requerimientos particulares de tu negocio.',
     clientsTitle:'Empresas e instituciones que confían en Nubilink',
     testEyebrow:'Nuestros clientes',
     testimonials:[
@@ -336,6 +342,9 @@ const LANG = {
       {num:'03', title:'AWS-certified team', desc:'Engineers who meet AWS’s most demanding technical standards.'},
       {num:'04', title:'Continuous cost optimization', desc:'FinOps in every architecture decision to reduce your cloud spend.'}
     ],
+    partnersEyebrow:'Alliances',
+    partnersTitle:'Strategic collaboration with associated partners.',
+    partnersLede:'We work with associated partners on specific cases, addressing the particular requirements of your business.',
     clientsTitle:'Companies and institutions that trust Nubilink',
     testEyebrow:'Our clients',
     testimonials:[
@@ -419,6 +428,16 @@ const CLIENT_LOGOS = [
   {f:'CT-Developers', n:'CT Developers'},
   {f:'E-solutions', n:'E-Solutions'},
   {f:'H-virtual', n:'H-Virtual'}
+];
+
+const PARTNERS = [
+  {f:'aws', n:'AWS'},
+  {f:'cloudhesive', n:'CloudHesive'},
+  {f:'stackzone', n:'StackZone'},
+  {f:'prosperops', n:'ProsperOps'},
+  {f:'trend-micro', n:'Trend Micro'},
+  {f:'unitech', n:'Unitech'},
+  {f:'smartcity', n:'Smartcity'}
 ];
 
 const SOCIAL = [
@@ -693,6 +712,20 @@ function homePage(t){
               <p style="font-size:15px;line-height:1.55;color:var(--t2);margin:0">${e(w.desc)}</p>
             </div>
           </div>`).join('')}
+        </div>
+      </div>
+    </section>
+
+    <!-- PARTNERS -->
+    <section style="background:var(--s1);padding:clamp(64px,8vw,104px) 28px;border-top:1px solid var(--b-soft)">
+      <div style="max-width:1100px;margin:0 auto">
+        <div style="max-width:680px;margin-bottom:44px">
+          <div data-reveal style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><span style="width:22px;height:2px;background:${GRAD};display:inline-block"></span><span class="mono" style="font-size:11px;color:#FF4DA6">${e(t.partnersEyebrow)}</span></div>
+          <h2 data-reveal style="font-family:'Poppins';font-weight:700;font-size:clamp(26px,3.4vw,40px);line-height:1.1;letter-spacing:-0.03em;color:#fff;margin:0 0 16px">${e(t.partnersTitle)}</h2>
+          <p data-reveal style="font-size:17px;line-height:1.6;color:var(--t1);margin:0">${e(t.partnersLede)}</p>
+        </div>
+        <div class="partner-grid">
+          ${PARTNERS.map(p => `<img class="client-logo" data-reveal src="partners/${p.f}.png" alt="${e(p.n)}" width="300" height="130" loading="lazy" />`).join('')}
         </div>
       </div>
     </section>
