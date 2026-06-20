@@ -129,6 +129,13 @@
   .nb-seamed::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;z-index:2;background:linear-gradient(90deg,transparent,rgba(255,255,255,.10) 28%,rgba(255,77,166,.45) 50%,rgba(255,255,255,.10) 72%,transparent)}
   h2{text-wrap:balance}
   .lede{font-size:clamp(16.5px,1vw + 12px,18px);line-height:1.7;color:var(--t1)}
+  /* savings calculator slider */
+  .nb-range{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;background:linear-gradient(90deg,#E6007E,#FF4DA6 var(--p,11%),rgba(255,255,255,.12) var(--p,11%));outline:none;cursor:pointer}
+  .nb-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid #FF4DA6;box-shadow:0 0 14px rgba(255,77,166,.7);cursor:grab;transition:transform .15s ease}
+  .nb-range::-webkit-slider-thumb:active{transform:scale(1.18);cursor:grabbing}
+  .nb-range::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid #FF4DA6;box-shadow:0 0 14px rgba(255,77,166,.7);cursor:grab}
+  .nb-range::-moz-range-track{height:6px;border-radius:999px;background:transparent}
+  .nb-range:focus-visible::-webkit-slider-thumb{outline:2px solid #FF4DA6;outline-offset:3px}
   .pill{transition:border-color .3s ease,color .3s ease,transform .25s cubic-bezier(.16,1,.3,1)}
   .btn-ghost{transition:border-color .3s ease,background .3s ease,transform .2s ease}
   .rail-fill{position:relative}
@@ -241,6 +248,12 @@ const LANG = {
     metricLabel:'menos de gasto cloud con FinOps continuo, sin tocar tu arquitectura.',
     metricSideA:'+25 años de trayectoria',
     metricSideB:'Equipo certificado AWS',
+    calcEyebrow:'Calcula tu ahorro',
+    calcTitle:'¿Cuánto podrías ahorrar con FinOps?',
+    calcLede:'Mueve tu gasto mensual en AWS y mira el ahorro estimado con optimización continua. Es una referencia orientativa, no un presupuesto.',
+    calcSpendLabel:'Tu gasto mensual en AWS',
+    calcResultLabel:'Ahorro estimado — hasta un 25%',
+    calcMonth:'/mes', calcYear:'al año',
     trustEyebrow:'Respaldados por AWS',
     trustItems:['AWS Select Consulting Partner','Well-Architected Framework','Equipo certificado AWS','Soporte nearshore AR · ES · US'],
     servicesEyebrow:'Servicios', servicesTitle:'Un único partner para toda tu nube.',
@@ -357,6 +370,12 @@ const LANG = {
     metricLabel:'lower cloud spend with continuous FinOps, without touching your architecture.',
     metricSideA:'25+ years of track record',
     metricSideB:'AWS-certified team',
+    calcEyebrow:'Estimate your savings',
+    calcTitle:'How much could FinOps save you?',
+    calcLede:'Drag your monthly AWS spend and see the estimated savings with continuous optimization. A ballpark, not a quote.',
+    calcSpendLabel:'Your monthly AWS spend',
+    calcResultLabel:'Estimated savings — up to 25%',
+    calcMonth:'/mo', calcYear:'per year',
     trustEyebrow:'Backed by AWS',
     trustItems:['AWS Select Consulting Partner','Well-Architected Framework','AWS-certified team','Nearshore support AR · ES · US'],
     servicesEyebrow:'Services', servicesTitle:'One partner for your entire cloud.',
@@ -698,6 +717,34 @@ function homePage(t){
           <div style="display:flex;flex-wrap:wrap;gap:10px">
             <span class="mono" style="font-size:11px;color:var(--t1);border:1px solid var(--b-soft);border-radius:999px;padding:8px 14px">${e(t.metricSideA)}</span>
             <span class="mono" style="font-size:11px;color:var(--t1);border:1px solid var(--b-soft);border-radius:999px;padding:8px 14px">${e(t.metricSideB)}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SAVINGS CALCULATOR (interactive — makes the 25% tangible) -->
+    <section class="nb-seamed" style="background:var(--s1);padding:clamp(60px,8vw,100px) 28px;position:relative;overflow:hidden">
+      <div class="orb" style="width:480px;height:480px;right:-130px;top:6%;background:radial-gradient(circle,rgba(255,77,166,.32),transparent 60%);opacity:.5"></div>
+      <div style="position:relative;z-index:1;max-width:1040px;margin:0 auto">
+        <div style="max-width:700px;margin-bottom:38px">
+          <div data-reveal style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><span class="nb-emk"></span><span class="mono" style="font-size:11px;color:#FF4DA6">${e(t.calcEyebrow)}</span></div>
+          <h2 data-reveal style="font-family:'Poppins';font-weight:700;font-size:clamp(28px,3.6vw,42px);line-height:1.08;letter-spacing:-0.03em;color:#fff;margin:0 0 14px">${e(t.calcTitle)}</h2>
+          <p data-reveal class="lede" style="margin:0">${e(t.calcLede)}</p>
+        </div>
+        <div class="glass glass-i" data-reveal style="border-radius:24px;padding:clamp(28px,4vw,44px)">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,5vw,60px);align-items:center" data-nbhalf>
+            <div>
+              <div class="mono" style="font-size:11px;color:var(--t2);margin-bottom:12px">${e(t.calcSpendLabel)}</div>
+              <div style="font-family:'Poppins';font-weight:700;font-size:clamp(32px,5vw,50px);letter-spacing:-0.03em;color:#fff;margin-bottom:24px;font-variant-numeric:tabular-nums">$<span data-savings-spend>12,000</span><span style="font-size:0.4em;font-weight:600;color:var(--t2)"> ${e(t.calcMonth)}</span></div>
+              <input type="range" data-savings-input class="nb-range" min="1000" max="100000" step="500" value="12000" style="--p:11.1%" aria-label="${e(t.calcSpendLabel)}">
+              <div style="display:flex;justify-content:space-between;margin-top:11px;font-size:12px;color:var(--t3)"><span>$1,000</span><span>$100,000+</span></div>
+            </div>
+            <div>
+              <div class="mono" style="font-size:11px;color:#FF4DA6;margin-bottom:12px">${e(t.calcResultLabel)}</div>
+              <div class="grad-text" style="font-family:'Poppins';font-weight:800;font-size:clamp(40px,6.2vw,64px);letter-spacing:-0.03em;line-height:1;font-variant-numeric:tabular-nums">$<span data-savings-month>3,000</span><span style="font-size:0.32em;font-weight:600">${e(t.calcMonth)}</span></div>
+              <div style="font-size:16px;color:var(--t1);margin:12px 0 26px;font-variant-numeric:tabular-nums">≈ $<span data-savings-year>36,000</span> ${e(t.calcYear)}</div>
+              <button data-act="contact" data-magnetic class="cta-glow" style="display:inline-flex;align-items:center;gap:9px;border:none;background:${GRAD};color:#fff;font-family:'Poppins';font-weight:600;font-size:15px;cursor:pointer;padding:14px 26px;border-radius:999px">${e(t.ctaTalk)} <span class="cta-arr" style="font-size:16px">&rarr;</span></button>
+            </div>
           </div>
         </div>
       </div>
@@ -1631,6 +1678,17 @@ app.addEventListener('click', (ev)=>{
   else if(act==='toggleMenu'){ state.menuOpen=!state.menuOpen; applyView(); }
   else if(act==='resetForm'){ state.sent=false; state.showErr=false; state.deliver=''; state.form={name:'',email:'',company:'',message:''}; applyView(); }
 });
+
+/* savings calculator — live (delegated, survives re-render) */
+function updateSavings(r){
+  const spend=Math.max(0,+r.value||0), lo=+r.min||0, hi=+r.max||100000;
+  const month=spend*0.25, year=month*12;
+  const sec=r.closest('section'); if(!sec) return;
+  const set=(sel,val)=>{ const el=sec.querySelector(sel); if(el) el.textContent=Math.round(val).toLocaleString('en-US'); };
+  set('[data-savings-spend]',spend); set('[data-savings-month]',month); set('[data-savings-year]',year);
+  r.style.setProperty('--p', (hi>lo ? (spend-lo)/(hi-lo)*100 : 0).toFixed(1)+'%');
+}
+app.addEventListener('input', (ev)=>{ const r=ev.target.closest('[data-savings-input]'); if(r) updateSavings(r); });
 
 function openMailto(f){
   const subject=encodeURIComponent('Contacto desde la web — '+(f.company||f.name||'Nubilink'));
