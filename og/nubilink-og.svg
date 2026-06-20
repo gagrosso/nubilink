@@ -38,9 +38,9 @@
   <text x="110" y="210" font-family="Helvetica, Arial, sans-serif" font-size="58" font-weight="700" fill="#ffffff">nubilink<tspan fill="#FF4DA6">.</tspan></text>
   <text x="112" y="248" font-family="Helvetica, Arial, sans-serif" font-size="21" letter-spacing="3" fill="#9C9C9D">RISING IN THE CLOUD</text>
   <!-- headline -->
-  <text x="106" y="520" font-family="Helvetica, Arial, sans-serif" font-size="104" font-weight="700" fill="#ffffff">Soluciones</text>
-  <text x="106" y="632" font-family="Helvetica, Arial, sans-serif" font-size="104" font-weight="700" fill="#ffffff">innovadoras</text>
-  <text x="106" y="744" font-family="Helvetica, Arial, sans-serif" font-size="104" font-weight="700" fill="url(#mag)">en la nube.</text>
+  <text x="106" y="520" font-family="Helvetica, Arial, sans-serif" font-size="104" font-weight="700" fill="#ffffff">Reduce tu gasto</text>
+  <text x="106" y="632" font-family="Helvetica, Arial, sans-serif" font-size="104" font-weight="700" fill="#ffffff">en AWS</text>
+  <text x="106" y="744" font-family="Helvetica, Arial, sans-serif" font-size="104" font-weight="700" fill="url(#mag)">hasta un 25%.</text>
   <!-- eyebrow -->
   <rect x="110" y="1010" width="900" height="56" rx="28" fill="none" stroke="#ffffff" stroke-opacity="0.18"/>
   <circle cx="148" cy="1038" r="6" fill="#FF4DA6"/>
