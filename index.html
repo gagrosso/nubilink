@@ -123,6 +123,8 @@
   @media (hover:hover) and (pointer:fine){ #nbTop:hover{border-color:rgba(255,77,166,.55);background:rgba(28,18,26,.82);box-shadow:0 10px 28px -6px rgba(230,0,126,.5)} }
   /* old-mobile: drop header backdrop blur (cheaper, no scroll flicker) */
   @media (max-width:680px){ [data-header]{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(10,10,12,.96)!important} }
+  @media (max-width:980px){ [data-nbstats]{grid-template-columns:repeat(3,1fr)!important;gap:16px 14px!important} }
+  @media (max-width:560px){ [data-nbstats]{grid-template-columns:repeat(2,1fr)!important} }
   .mono{font-family:var(--mono);text-transform:uppercase;letter-spacing:.14em}
   .glass{background:linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.026));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--gb,rgba(255,255,255,0.10));box-shadow:0 8px 32px rgba(0,0,0,0.36),inset 0 1px 0 rgba(255,255,255,0.07);transition:transform .35s cubic-bezier(.16,1,.3,1),box-shadow .35s ease,border-color .35s ease,background .35s ease}
   @supports not ((backdrop-filter:blur(2px)) or (-webkit-backdrop-filter:blur(2px))){ .glass{background:var(--s2)} }
@@ -358,8 +360,20 @@ const LANG = {
     ],
     testEyebrow:'Nuestros clientes',
     testimonials:[
-      {quote:'Lo que hizo la experiencia excepcional fue la atención personalizada. El equipo de Nubilink siempre estuvo disponible para resolver nuestras dudas. Su compromiso y enfoque proactivo hicieron todo el proceso fluido.', name:'Sebastián Pereyro', role:'Empirical', initial:'S'},
-      {quote:'Cuando necesitamos migrar nuestro entorno AWS en horario de baja demanda, el equipo de Nubilink nos apoyó en cada paso. Buscábamos una solución de pagos internacionales y encontramos un partner que nos da tranquilidad continua.', name:'Andrés Lapuente', role:'E-wave', initial:'A'}
+      {quote:'Lo que hizo la experiencia excepcional fue la atención personalizada. El equipo de Nubilink siempre estuvo disponible para resolver nuestras dudas. Su compromiso y enfoque proactivo hicieron todo el proceso fluido.', name:'Sebastián Pereyro', role:'Empirical', initial:'S', reto:'Necesitaban un partner cloud con soporte cercano y siempre disponible.', hicimos:'Acompañamiento de punta a punta y atención personalizada en cada paso.', resultado:'Un proceso fluido y sin fricción, con un equipo comprometido y proactivo.'},
+      {quote:'Cuando necesitamos migrar nuestro entorno AWS en horario de baja demanda, el equipo de Nubilink nos apoyó en cada paso. Buscábamos una solución de pagos internacionales y encontramos un partner que nos da tranquilidad continua.', name:'Andrés Lapuente', role:'E-wave', initial:'A', reto:'Migrar su entorno AWS con mínima interrupción y resolver los pagos internacionales.', hicimos:'Migración por fases en horario de baja demanda y facturación local de AWS.', resultado:'Tranquilidad continua: migración sin sobresaltos y pagos resueltos.'}
+    ],
+    caseEyebrow:'Casos reales',
+    caseTitle:'Clientes que ya operan tranquilos.',
+    caseLede:'Historias reales de migración, soporte y optimización sobre AWS.',
+    caseTag:'Caso', caseReto:'Reto', caseDid:'Qué hicimos', caseResult:'Resultado',
+    statsTitle:'Nubilink en números',
+    companyStats:[
+      {n:'AR · ES · US', l:'operación nearshore'},
+      {n:'24/7', l:'monitorización y soporte'},
+      {n:'+25', l:'años de trayectoria'},
+      {n:'Select Tier', l:'AWS Consulting Partner'},
+      {n:'6', l:'pilares Well-Architected'}
     ],
     ctaBandTitle:'Nubilink. La inversión que rinde.', ctaBandSub:'Hablemos de cómo llevar tu infraestructura cloud al siguiente nivel — con un partner que te escucha.',
     ctaBandBtn:'Agenda una llamada',
@@ -494,8 +508,20 @@ const LANG = {
     ],
     testEyebrow:'Our clients',
     testimonials:[
-      {quote:'What truly made the experience outstanding was the personalized attention. The Nubilink team was always available to answer our questions. Their commitment and proactive approach made the entire process smooth and hassle-free.', name:'Sebastián Pereyro', role:'Empirical', initial:'S'},
-      {quote:'When we needed to migrate our AWS environment during off-peak hours, Nubilink’s team supported us every step of the way. Seeking a solution for our payment challenges, we found a partner that gives us ongoing peace of mind.', name:'Andrés Lapuente', role:'E-wave', initial:'A'}
+      {quote:'What truly made the experience outstanding was the personalized attention. The Nubilink team was always available to answer our questions. Their commitment and proactive approach made the entire process smooth and hassle-free.', name:'Sebastián Pereyro', role:'Empirical', initial:'S', reto:'They needed a cloud partner with close, always-available support.', hicimos:'End-to-end accompaniment and personalized attention at every step.', resultado:'A smooth, hassle-free process with a committed, proactive team.'},
+      {quote:'When we needed to migrate our AWS environment during off-peak hours, Nubilink’s team supported us every step of the way. Seeking a solution for our payment challenges, we found a partner that gives us ongoing peace of mind.', name:'Andrés Lapuente', role:'E-wave', initial:'A', reto:'Migrate their AWS environment with minimal disruption and solve international payments.', hicimos:'Phased migration during off-peak hours plus local AWS billing.', resultado:'Ongoing peace of mind: a seamless migration and payments solved.'}
+    ],
+    caseEyebrow:'Real cases',
+    caseTitle:'Clients already running with peace of mind.',
+    caseLede:'Real stories of migration, support and optimization on AWS.',
+    caseTag:'Case', caseReto:'Challenge', caseDid:'What we did', caseResult:'Result',
+    statsTitle:'Nubilink by the numbers',
+    companyStats:[
+      {n:'AR · ES · US', l:'nearshore operation'},
+      {n:'24/7', l:'monitoring & support'},
+      {n:'+25', l:'years of track record'},
+      {n:'Select Tier', l:'AWS Consulting Partner'},
+      {n:'6', l:'Well-Architected pillars'}
     ],
     ctaBandTitle:'Nubilink. The investment that pays off.', ctaBandSub:'Let’s talk about taking your cloud infrastructure to the next level — with a partner that listens.',
     ctaBandBtn:'Book a call',
@@ -973,20 +999,38 @@ function homePage(t){
       </div>
     </section>` : ''}
 
-    <!-- TESTIMONIALS -->
+    <!-- CASES (real, from client testimonials) + honest stats -->
     <section style="background:var(--s0);padding:clamp(64px,8vw,110px) 28px">
-      <div style="max-width:1220px;margin:0 auto">
-        <div data-reveal style="display:flex;align-items:center;gap:10px;margin-bottom:40px"><span class="nb-emk"></span><span class="mono" style="font-size:11px;color:#FF4DA6">${e(t.testEyebrow)}</span></div>
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:22px" data-nbgrid2>
+      <div style="max-width:1180px;margin:0 auto">
+        <div style="max-width:680px;margin-bottom:42px">
+          <div data-reveal style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><span class="nb-emk"></span><span class="mono" style="font-size:11px;color:#FF4DA6">${e(t.caseEyebrow)}</span></div>
+          <h2 data-reveal style="font-family:'Poppins';font-weight:700;font-size:clamp(28px,3.6vw,44px);line-height:1.08;letter-spacing:-0.03em;color:#fff;margin:0 0 14px">${e(t.caseTitle)}</h2>
+          <p data-reveal class="lede" style="margin:0">${e(t.caseLede)}</p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:22px;margin-bottom:clamp(40px,5vw,56px)" data-nbgrid2>
           ${t.testimonials.map(q => `
-          <figure class="glass glass-i" data-reveal style="margin:0;border-radius:22px;padding:38px">
-            <div class="grad-text" style="font-family:'Poppins';font-size:46px;line-height:0.6;margin-bottom:18px">&ldquo;</div>
-            <blockquote style="margin:0 0 26px;font-size:18px;line-height:1.62;color:var(--t0);font-weight:400">${e(q.quote)}</blockquote>
-            <figcaption style="display:flex;align-items:center;gap:13px">
-              <span style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#E6007E,#FF4DA6);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Poppins';font-weight:600;font-size:16px">${e(q.initial)}</span>
-              <span><span style="display:block;font-family:'Poppins';font-weight:600;font-size:15px;color:#fff">${e(q.name)}</span><span style="display:block;font-size:13.5px;color:var(--t2)">${e(q.role)}</span></span>
+          <figure class="glass glass-i" data-reveal style="margin:0;border-radius:22px;padding:clamp(26px,3vw,36px);display:flex;flex-direction:column">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+              <span style="font-family:'Poppins';font-weight:700;font-size:19px;color:#fff;letter-spacing:-0.01em">${e(q.role)}</span>
+              <span class="mono" style="font-size:10px;color:#FF4DA6;border:1px solid var(--b-soft);border-radius:999px;padding:5px 11px">${e(t.caseTag)}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:22px">
+              <div><div class="mono" style="font-size:10px;color:var(--t3);margin-bottom:4px">${e(t.caseReto)}</div><div style="font-size:14.5px;line-height:1.5;color:var(--t1)">${e(q.reto)}</div></div>
+              <div><div class="mono" style="font-size:10px;color:var(--t3);margin-bottom:4px">${e(t.caseDid)}</div><div style="font-size:14.5px;line-height:1.5;color:var(--t1)">${e(q.hicimos)}</div></div>
+              <div style="border-left:2px solid #FF4DA6;padding-left:14px"><div class="mono" style="font-size:10px;color:#FF4DA6;margin-bottom:4px">${e(t.caseResult)}</div><div style="font-size:15px;line-height:1.5;color:#fff;font-weight:500">${e(q.resultado)}</div></div>
+            </div>
+            <blockquote style="margin:auto 0 18px;padding-top:18px;border-top:1px solid var(--b-soft);font-size:14.5px;line-height:1.6;color:var(--t2)">&ldquo;${e(q.quote)}&rdquo;</blockquote>
+            <figcaption style="display:flex;align-items:center;gap:12px">
+              <span style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#E6007E,#FF4DA6);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Poppins';font-weight:600;font-size:15px">${e(q.initial)}</span>
+              <span><span style="display:block;font-family:'Poppins';font-weight:600;font-size:14px;color:#fff">${e(q.name)}</span><span style="display:block;font-size:12.5px;color:var(--t2)">${e(q.role)}</span></span>
             </figcaption>
           </figure>`).join('')}
+        </div>
+        <div data-reveal style="border-top:1px solid var(--b-soft);padding-top:32px">
+          <div class="mono" style="font-size:11px;color:var(--t3);margin-bottom:22px">${e(t.statsTitle)}</div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:20px" data-nbstats>
+            ${t.companyStats.map(s => `<div><div class="grad-text" style="font-family:'Poppins';font-weight:700;font-size:clamp(19px,2.3vw,28px);letter-spacing:-0.02em;margin-bottom:5px">${e(s.n)}</div><div style="font-size:12.5px;line-height:1.35;color:var(--t2)">${e(s.l)}</div></div>`).join('')}
+          </div>
         </div>
       </div>
     </section>
