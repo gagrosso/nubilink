@@ -19,6 +19,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/three@0.136.0/build/three.min.js"></script>
 <style>
   *{box-sizing:border-box}
   :root{
@@ -604,14 +605,15 @@ function homePage(t){
           </div>
         </div>
         <div data-reveal style="position:relative">
-          <div style="position:relative;border-radius:24px;overflow:hidden;aspect-ratio:4/3;box-shadow:0 40px 90px -30px rgba(0,0,0,0.7);border:1px solid var(--b-soft);background:radial-gradient(120% 100% at 50% 32%,#17121b,#0b0a0e)">
-            <div class="hero-grid" style="opacity:.32"></div>
+          <div style="position:relative;aspect-ratio:1/1;width:100%">
+            <div aria-hidden="true" style="position:absolute;inset:-8%;border-radius:50%;background:radial-gradient(circle at 50% 46%,rgba(4,3,7,0.96),rgba(4,3,7,0.78) 44%,rgba(4,3,7,0.32) 62%,transparent 74%)"></div>
+            <div id="nbCloud" style="position:absolute;inset:0" aria-label="Nube de datos 3D de Nubilink" role="img"></div>
             ${heroArt()}
           </div>
-          <div class="cta-glow" style="position:absolute;left:-14px;top:24px;background:${GRAD};color:#fff;border-radius:999px;padding:11px 20px 11px 16px;display:flex;align-items:center;gap:9px">
+          <div class="cta-glow" style="position:absolute;left:-6px;top:30px;background:${GRAD};color:#fff;border-radius:999px;padding:11px 20px 11px 16px;display:flex;align-items:center;gap:9px;z-index:2">
             <span style="font-size:15px">&rsaquo;</span><span style="font-family:'Poppins';font-weight:600;font-size:14px">${e(t.heroBadge)}</span>
           </div>
-          <img src="aws/consulting-card.png" alt="AWS Select Tier Consulting Partner" style="position:absolute;right:-14px;bottom:-22px;width:148px;height:auto;display:block;filter:drop-shadow(0 18px 34px rgba(0,0,0,0.5))" />
+          <img src="aws/consulting-card.png" alt="AWS Select Tier Consulting Partner" style="position:absolute;right:-6px;bottom:-10px;width:148px;height:auto;display:block;filter:drop-shadow(0 18px 34px rgba(0,0,0,0.5));z-index:2" />
         </div>
       </div>
     </section>
@@ -1061,10 +1063,82 @@ function view(){
    ===================================================================== */
 const app = document.getElementById('app');
 let lenis = null;
-const film = { mm:null, splits:[], shader:null, carousel:null };
+const film = { mm:null, splits:[], shader:null, carousel:null, cloud:null };
 const prefersReduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---- WebGL aurora hero ---- */
+/* 3D particle "cloud" hero centerpiece (Three.js) — glowing nebula that drifts,
+   rotates and reacts to the cursor. Replaces the flat SVG diagram. */
+function startCloud(container){
+  if(!window.THREE) return null;
+  const W=container.clientWidth, H=container.clientHeight;
+  if(W<4||H<4) return null;
+  let renderer;
+  try{ renderer=new THREE.WebGLRenderer({alpha:true, antialias:true, powerPreference:'low-power'}); }catch(_){ return null; }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 1.75));
+  renderer.setSize(W,H);
+  renderer.setClearColor(0x000000, 0);
+  renderer.domElement.style.cssText='position:absolute;inset:0;width:100%;height:100%;display:block';
+  container.appendChild(renderer.domElement);
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(50, W/H, 0.1, 100);
+  camera.position.set(0,0,9);
+
+  const N=5200;
+  const pos=new Float32Array(N*3), col=new Float32Array(N*3), siz=new Float32Array(N), pha=new Float32Array(N);
+  const clusters=[[0,0,0,2.7],[1.7,0.4,0.6,1.5],[-1.8,-0.3,-0.5,1.6],[0.5,1.0,-1.1,1.2],[-0.7,-0.9,1.1,1.3]];
+  const cMag=new THREE.Color(0xE6007E), cPink=new THREE.Color(0xFF4DA6), cViol=new THREE.Color(0x6A1F9C), cWhite=new THREE.Color(0xFFE6F2);
+  const g3=()=>{ let s=0; for(let k=0;k<3;k++) s+=Math.random(); return (s/3-0.5)*2; };
+  const tmp=new THREE.Color();
+  for(let i=0;i<N;i++){
+    const cl=clusters[(Math.random()*clusters.length)|0];
+    const x=cl[0]+g3()*cl[3], y=(cl[1]+g3()*cl[3])*0.62, z=cl[2]+g3()*cl[3];
+    pos[i*3]=x; pos[i*3+1]=y; pos[i*3+2]=z;
+    const dist=Math.sqrt(x*x+y*y+z*z), tt=Math.min(1, dist/3.4);
+    if(Math.random()<0.10){ tmp.copy(cWhite); }
+    else { tmp.copy(cViol).lerp(cMag, 0.35+0.5*Math.random()).lerp(cPink, Math.random()*Math.random()*0.7); }
+    const b=1.0 - tt*0.55;
+    col[i*3]=tmp.r*b; col[i*3+1]=tmp.g*b; col[i*3+2]=tmp.b*b;
+    siz[i]=(Math.random()*Math.random())*30 + 6;
+    pha[i]=Math.random()*6.283;
+  }
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('color', new THREE.BufferAttribute(col,3));
+  geo.setAttribute('aSize', new THREE.BufferAttribute(siz,1));
+  geo.setAttribute('aPhase', new THREE.BufferAttribute(pha,1));
+  const mat=new THREE.ShaderMaterial({
+    uniforms:{ uTime:{value:0}, uDpr:{value:renderer.getPixelRatio()} },
+    transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+    vertexShader:'attribute float aSize;attribute float aPhase;uniform float uTime;uniform float uDpr;varying vec3 vColor;varying float vAlpha;void main(){vColor=color;vec3 p=position;p.x+=sin(uTime*0.4+aPhase)*0.07;p.y+=cos(uTime*0.33+aPhase*1.3)*0.07;vec4 mv=modelViewMatrix*vec4(p,1.0);float d=-mv.z;vAlpha=smoothstep(17.0,4.0,d);gl_PointSize=aSize*uDpr*(8.5/d)*(0.82+0.18*sin(uTime*1.6+aPhase));gl_Position=projectionMatrix*mv;}',
+    fragmentShader:'varying vec3 vColor;varying float vAlpha;void main(){vec2 uv=gl_PointCoord-0.5;float r=length(uv);float a=smoothstep(0.5,0.0,r);a*=a;gl_FragColor=vec4(vColor,a*vAlpha);}',
+    vertexColors:true
+  });
+  const points=new THREE.Points(geo,mat);
+  const group=new THREE.Group(); group.add(points); scene.add(group);
+
+  let raf=0,t0=null,running=true,inView=true,last=-999, mx=0,my=0,tmx=0,tmy=0;
+  const onMove=(e)=>{ const r=container.getBoundingClientRect(); tmx=((e.clientX-r.left)/r.width-0.5)*2; tmy=((e.clientY-r.top)/r.height-0.5)*2; };
+  container.addEventListener('mousemove', onMove);
+  const resize=()=>{ const w=container.clientWidth,h=container.clientHeight; if(w<4||h<4) return; renderer.setSize(w,h); camera.aspect=w/h; camera.updateProjectionMatrix(); mat.uniforms.uDpr.value=renderer.getPixelRatio(); };
+  window.addEventListener('resize', resize);
+  function frame(ts){
+    if(!running||!inView){ raf=0; return; }
+    raf=requestAnimationFrame(frame);
+    if(ts-last<33) return; last=ts;
+    if(t0===null) t0=ts; const t=(ts-t0)/1000;
+    mat.uniforms.uTime.value=t;
+    mx+=(tmx-mx)*0.05; my+=(tmy-my)*0.05;
+    group.rotation.y=t*0.08 + mx*0.35; group.rotation.x=my*0.22;
+    camera.position.x=mx*0.7; camera.position.y=-my*0.5; camera.lookAt(0,0,0);
+    renderer.render(scene,camera);
+  }
+  const io=new IntersectionObserver(es=>{ es.forEach(en=>{ inView=en.isIntersecting; if(inView && running && !raf) raf=requestAnimationFrame(frame); }); },{threshold:0});
+  io.observe(container);
+  raf=requestAnimationFrame(frame);
+  return { stop(){ running=false; if(raf) cancelAnimationFrame(raf); io.disconnect(); window.removeEventListener('resize',resize); container.removeEventListener('mousemove',onMove); try{geo.dispose();mat.dispose();renderer.dispose();}catch(_){ } if(renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement); } };
+}
+
 function startAurora(canvas){
   let gl;
   try { gl = canvas.getContext('webgl', {antialias:false, depth:false, stencil:false, alpha:false, powerPreference:'low-power', preserveDrawingBuffer:false}); } catch(_) {}
@@ -1087,14 +1161,14 @@ function startAurora(canvas){
     ' vec3 c2=vec3(0.85,0.0,0.46);',
     ' vec3 c3=vec3(1.0,0.30,0.66);',
     ' vec3 col=c0;',
-    ' col=mix(col,c1,smoothstep(0.12,0.82,f));',
-    ' col=mix(col,c2,smoothstep(0.46,1.08,length(r))*0.72);',
-    ' vec2 core=vec2((0.72+0.12*sin(t*1.5))*asp,0.5+0.12*cos(t*1.2));',
-    ' float d=exp(-3.1*length(p-core));',
-    ' col=mix(col,c3,d*0.5);',
-    ' col*=0.7+0.34*f;',
-    ' float vig=smoothstep(1.45,0.2,length(uv-0.5));',
-    ' col*=mix(0.4,1.05,vig);',
+    ' col=mix(col,c1,smoothstep(0.18,0.9,f)*0.85);',
+    ' col=mix(col,c2,smoothstep(0.55,1.12,length(r))*0.5);',
+    ' vec2 core=vec2((0.26+0.1*sin(t*1.5))*asp,0.66+0.1*cos(t*1.2));',
+    ' float d=exp(-3.4*length(p-core));',
+    ' col=mix(col,c3,d*0.32);',
+    ' col*=0.42+0.26*f;',
+    ' float vig=smoothstep(1.5,0.15,length(uv-0.5));',
+    ' col*=mix(0.3,0.82,vig);',
     ' col+=(hash(gl_FragCoord.xy)-0.5)*0.014;',
     ' gl_FragColor=vec4(col,1.0);',
     '}'
@@ -1196,6 +1270,7 @@ function teardownFilm(){
   film.splits.forEach(s=>{ try{ s.revert(); }catch(_){} });
   film.splits=[];
   if(film.shader){ try{ film.shader.stop(); }catch(_){} film.shader=null; }
+  if(film.cloud){ try{ film.cloud.stop(); }catch(_){} film.cloud=null; }
   if(film.carousel){ try{ film.carousel.stop(); }catch(_){} film.carousel=null; }
   if(window.ScrollTrigger){ ScrollTrigger.getAll().forEach(st=>{ try{ st.kill(); }catch(_){} }); }
 }
@@ -1210,6 +1285,12 @@ function initFilm(){
     if(prefersReduce()){ canvas.style.display='none'; }
     else { film.shader=startAurora(canvas); if(film.shader && fallback){ fallback.style.opacity='0'; } }
   }
+
+  // hero 3D particle cloud (replaces the flat diagram; the SVG diagram is the fallback)
+  const cloudEl=document.getElementById('nbCloud');
+  const heroSvg=document.querySelector('.nb-art');
+  if(cloudEl && !prefersReduce()){ film.cloud=startCloud(cloudEl); }
+  if(heroSvg){ heroSvg.style.display = film.cloud ? 'none' : 'block'; }
 
   const mm=gsap.matchMedia();
   film.mm=mm;
