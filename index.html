@@ -1091,10 +1091,10 @@ function startNetwork(container){
   container.appendChild(renderer.domElement);
   // Opaque dark stage when bloom is on — feather the canvas edges so it melts into the hero.
   container.style.webkitMaskImage = container.style.maskImage =
-    useBloom ? 'radial-gradient(closest-side at 50% 50%, #000 58%, rgba(0,0,0,0.4) 76%, transparent 88%)' : '';
+    useBloom ? 'radial-gradient(closest-side at 50% 50%, #000 66%, rgba(0,0,0,0.4) 84%, transparent 96%)' : '';
   const scene=new THREE.Scene();
   const camera=new THREE.PerspectiveCamera(50, W/H, 0.1, 100);
-  camera.position.set(0,0,7.8);
+  camera.position.set(0,0,6.9);
 
   // ===== build the graph: nodes (cloud services) linked into a live network =====
   const NN = coarse?34:50, HUBS = 4, R = 3.25;
@@ -1113,8 +1113,8 @@ function startNetwork(container){
   }
   const N=nodes.length;
   for(let i=0;i<N;i++){ const nd=nodes[i]; const tt=Math.min(1, nd.p.length()/R);
-    if(nd.hub){ tmp.copy(cWhite).lerp(cPink,0.4); } else { tmp.copy(cViol).lerp(cMag,0.4+0.45*Math.random()).lerp(cPink, Math.random()*Math.random()*0.6); }
-    const b=(nd.hub?0.92:(0.92-tt*0.24))*(useBloom?0.92:1.0);
+    if(nd.hub){ tmp.copy(cPink); } else { tmp.copy(cViol).lerp(cMag,0.4+0.45*Math.random()).lerp(cPink, Math.random()*Math.random()*0.6); }
+    const b=(nd.hub?0.82:(0.92-tt*0.24))*(useBloom?0.92:1.0);
     nd.base=tmp.clone().multiplyScalar(b);
     nd.size=nd.hub?46:(16+Math.random()*13);
     nd.glow=Math.random()*0.3; nd.phase=Math.random()*6.283;
@@ -1138,7 +1138,7 @@ function startNetwork(container){
 
   // ---- edge geometry (faint glowing links) ----
   const epos=new Float32Array(edges.length*6), ecol=new Float32Array(edges.length*6); const eC=new THREE.Color();
-  eC.copy(cViol).lerp(cMag,0.5).multiplyScalar(useBloom?0.44:0.58);
+  eC.copy(cViol).lerp(cMag,0.55).multiplyScalar(useBloom?0.58:0.7);
   for(let i=0;i<edges.length;i++){ const a=nodes[edges[i][0]].p, b=nodes[edges[i][1]].p;
     epos[i*6]=a.x; epos[i*6+1]=a.y; epos[i*6+2]=a.z; epos[i*6+3]=b.x; epos[i*6+4]=b.y; epos[i*6+5]=b.z;
     for(let s=0;s<2;s++){ ecol[i*6+s*3]=eC.r; ecol[i*6+s*3+1]=eC.g; ecol[i*6+s*3+2]=eC.b; }
@@ -1171,7 +1171,7 @@ function startNetwork(container){
   const pulses=[];
   for(let i=0;i<NP;i++){ const ei=(Math.random()*edges.length)|0; const from=edges[ei][Math.random()<0.5?0:1]; pulses.push({ei, from, t:Math.random(), spd:0.34+Math.random()*0.4}); }
   const ppos=new Float32Array(NP*3), pcol=new Float32Array(NP*3), psz=new Float32Array(NP);
-  for(let i=0;i<NP;i++){ psz[i]=24+Math.random()*13; const c=Math.random()<0.62?cWhite:cPink; const m=1.0; pcol[i*3]=c.r*m; pcol[i*3+1]=c.g*m; pcol[i*3+2]=c.b*m;
+  for(let i=0;i<NP;i++){ psz[i]=19+Math.random()*10; const c=Math.random()<0.18?cWhite:cPink; const m=0.74; pcol[i*3]=c.r*m; pcol[i*3+1]=c.g*m; pcol[i*3+2]=c.b*m;
     const pu=pulses[i], a=nodes[pu.from].p, b=nodes[otherEnd(pu.ei,pu.from)].p; ppos[i*3]=a.x+(b.x-a.x)*pu.t; ppos[i*3+1]=a.y+(b.y-a.y)*pu.t; ppos[i*3+2]=a.z+(b.z-a.z)*pu.t; }
   const pgeo=new THREE.BufferGeometry();
   pgeo.setAttribute('position', new THREE.BufferAttribute(ppos,3));
@@ -1186,7 +1186,7 @@ function startNetwork(container){
     hpos[i*3]=hv.x; hpos[i*3+1]=hv.y; hpos[i*3+2]=hv.z;
     const tt=Math.min(1, hv.length()/R);
     hc.copy(cViol).lerp(cMag, 0.3+0.5*Math.random()).lerp(cPink, Math.random()*Math.random()*0.5);
-    const hb=(0.5-tt*0.22)*(useBloom?0.78:1.0); hcol[i*3]=hc.r*hb; hcol[i*3+1]=hc.g*hb; hcol[i*3+2]=hc.b*hb;
+    const hb=(0.46-tt*0.22)*(useBloom?0.7:1.0); hcol[i*3]=hc.r*hb; hcol[i*3+1]=hc.g*hb; hcol[i*3+2]=hc.b*hb;
     hsz[i]=3+Math.random()*Math.random()*12;
   }
   const hgeo=new THREE.BufferGeometry();
@@ -1198,7 +1198,7 @@ function startNetwork(container){
   const group=new THREE.Group(); group.add(hazePts); group.add(lines); group.add(nodePts); group.add(pulsePts); scene.add(group);
 
   let composer=null, bloom=null;
-  if(useBloom){ try{ composer=new THREE.EffectComposer(renderer); composer.setSize(W,H); composer.addPass(new THREE.RenderPass(scene,camera)); bloom=new THREE.UnrealBloomPass(new THREE.Vector2(W,H), 0.74, 0.78, 0.18); composer.addPass(bloom); }catch(_){ composer=null; } }
+  if(useBloom){ try{ composer=new THREE.EffectComposer(renderer); composer.setSize(W,H); composer.addPass(new THREE.RenderPass(scene,camera)); bloom=new THREE.UnrealBloomPass(new THREE.Vector2(W,H), 0.6, 0.78, 0.2); composer.addPass(bloom); }catch(_){ composer=null; } }
 
   const PV=new THREE.Vector3();
   const pickEdgeFrom=(node,prev)=>{ const a=adj[node]; if(!a.length) return null; let opts=a.filter(x=>x[1]!==prev); if(!opts.length) opts=a; return opts[(Math.random()*opts.length)|0]; };
