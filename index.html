@@ -118,6 +118,15 @@
   .nb-seamed{position:relative}
   .nb-seamed::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;z-index:2;background:linear-gradient(90deg,transparent,rgba(255,255,255,.10) 28%,rgba(255,77,166,.45) 50%,rgba(255,255,255,.10) 72%,transparent)}
   h2{text-wrap:balance}
+  .pill{transition:border-color .3s ease,color .3s ease,transform .25s cubic-bezier(.16,1,.3,1)}
+  .btn-ghost{transition:border-color .3s ease,background .3s ease,transform .2s ease}
+  .rail-fill{position:relative}
+  .rail-fill::after{content:"";position:absolute;right:-2px;top:50%;width:9px;height:9px;border-radius:50%;transform:translateY(-50%);background:#fff;box-shadow:0 0 10px 2px rgba(255,77,166,.9),0 0 5px rgba(255,255,255,.7)}
+  @media (hover:hover) and (pointer:fine){
+    .pill:hover{border-color:rgba(255,77,166,.5);color:#fff;transform:translateY(-2px)}
+    .pill:hover .nb-dot{box-shadow:0 0 10px 2px rgba(255,77,166,.75)}
+    .btn-ghost:hover{border-color:rgba(255,77,166,.5);background:rgba(255,77,166,.08)}
+  }
   @media (hover:hover) and (pointer:fine){
     .glass-i:hover{transform:translateY(-6px);--gb:rgba(255,77,166,.40);box-shadow:0 22px 50px -18px rgba(230,0,126,.45),0 12px 30px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.10)}
     .glass-i:hover::before{opacity:1}
@@ -149,7 +158,7 @@
   .svc-track{display:flex;flex-wrap:nowrap;gap:22px;padding:0 28px;will-change:transform}
   .svc-panel{flex:0 0 auto;width:min(82vw,840px);min-height:0}
   .svc-rail{display:flex;align-items:center;gap:16px;max-width:1220px;margin:0 auto;padding:22px 28px 0}
-  .rail-track{flex:1;height:2px;background:rgba(255,255,255,.12);border-radius:2px;overflow:hidden}
+  .rail-track{flex:1;height:2px;background:rgba(255,255,255,.12);border-radius:2px;position:relative}
   .rail-fill{height:100%;width:0%;background:var(--grad);box-shadow:0 0 12px rgba(255,77,166,.7)}
   @media (min-width:981px){
     .svc-act{min-height:100vh;display:flex;flex-direction:column;justify-content:center}
@@ -623,7 +632,7 @@ function homePage(t){
           <p data-reveal style="font-size:clamp(16px,1.5vw,19px);line-height:1.62;color:var(--t1);max-width:540px;margin:0 0 34px">${e(t.heroSub)}</p>
           <div data-reveal style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:40px">
             <button data-act="contact" data-magnetic class="cta-glow" style="display:inline-flex;align-items:center;gap:9px;border:none;background:${GRAD};color:#fff;font-family:'Poppins';font-weight:600;font-size:16px;cursor:pointer;padding:15px 28px;border-radius:999px">${e(t.heroCta1)} <span class="cta-arr" style="font-size:17px">&rarr;</span></button>
-            <button data-act="services" style="display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,0.04);border:1px solid var(--b-strong);color:#fff;font-family:'Poppins';font-weight:500;font-size:16px;cursor:pointer;padding:15px 28px;border-radius:999px">${e(t.heroCta2)}</button>
+            <button data-act="services" class="btn-ghost" style="display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,0.04);border:1px solid var(--b-strong);color:#fff;font-family:'Poppins';font-weight:500;font-size:16px;cursor:pointer;padding:15px 28px;border-radius:999px">${e(t.heroCta2)}</button>
           </div>
           <div data-reveal style="display:flex;flex-wrap:wrap;gap:28px;align-items:center">
             <div style="display:flex;align-items:baseline;gap:9px">
@@ -656,7 +665,7 @@ function homePage(t){
       <div style="max-width:1220px;margin:0 auto;padding:22px 28px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px">
         <span class="mono" style="font-size:11px;color:var(--t3)">${e(t.trustEyebrow)}</span>
         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:14px">
-          ${t.trustItems.map(tr => `<span class="mono" data-reveal style="display:flex;align-items:center;gap:8px;color:var(--t1);font-size:11px;border:1px solid var(--b-soft);border-radius:999px;padding:7px 13px"><span class="nb-dot"></span>${e(tr)}</span>`).join('')}
+          ${t.trustItems.map(tr => `<span class="mono pill" data-reveal style="display:flex;align-items:center;gap:8px;color:var(--t1);font-size:11px;border:1px solid var(--b-soft);border-radius:999px;padding:7px 13px"><span class="nb-dot"></span>${e(tr)}</span>`).join('')}
         </div>
       </div>
     </section>
@@ -698,7 +707,7 @@ function homePage(t){
             <h3 style="font-family:'Poppins';font-weight:600;font-size:clamp(22px,2.4vw,27px);letter-spacing:-0.02em;color:#fff;margin:0 0 12px">${e(s.name)}</h3>
             <p style="font-size:15.5px;line-height:1.6;color:var(--t1);margin:0 0 22px;flex:1">${e(s.long)}</p>
             <div style="display:flex;flex-wrap:wrap;gap:10px">
-              ${s.points.map(pt => `<span style="display:inline-flex;align-items:center;gap:8px;border:1px solid var(--b-soft);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:500;color:var(--t1)"><span class="nb-dot"></span>${e(pt)}</span>`).join('')}
+              ${s.points.map(pt => `<span class="pill" style="display:inline-flex;align-items:center;gap:8px;border:1px solid var(--b-soft);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:500;color:var(--t1)"><span class="nb-dot"></span>${e(pt)}</span>`).join('')}
             </div>
           </div>`).join('')}
         </div>
@@ -881,7 +890,7 @@ function servicesPage(t){
             <h2 style="font-family:'Poppins';font-weight:600;font-size:clamp(22px,2.6vw,30px);letter-spacing:-0.025em;color:#fff;margin:0 0 10px">${e(s.name)}</h2>
             <p style="font-size:16.5px;line-height:1.6;color:var(--t1);margin:0 0 22px;max-width:620px">${e(s.long)}</p>
             <div style="display:flex;flex-wrap:wrap;gap:12px">
-              ${s.points.map(pt => `<span style="display:inline-flex;align-items:center;gap:8px;border:1px solid var(--b-soft);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500;color:var(--t1)"><span class="nb-dot"></span>${e(pt)}</span>`).join('')}
+              ${s.points.map(pt => `<span class="pill" style="display:inline-flex;align-items:center;gap:8px;border:1px solid var(--b-soft);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:500;color:var(--t1)"><span class="nb-dot"></span>${e(pt)}</span>`).join('')}
             </div>
           </div>
         </div>`).join('')}
@@ -1569,6 +1578,7 @@ function applyView(){
     ? 'Nubilink — Soluciones innovadoras en la nube'
     : 'Nubilink — Innovative solutions in the cloud';
   initFilm();
+  if(window.__nbProg) requestAnimationFrame(window.__nbProg);
 }
 
 function scrollTop(){
@@ -1641,6 +1651,21 @@ app.addEventListener('submit', async (ev)=>{
   state.deliver=mode; state.sent=true; applyView(); scrollTop();
 });
 
+/* ---------- scroll progress bar (global, persists across SPA re-renders) ---------- */
+function setupProgress(){
+  if(document.getElementById('nbProgress')) return;
+  const bar=document.createElement('div');
+  bar.id='nbProgress'; bar.setAttribute('aria-hidden','true');
+  bar.style.cssText='position:fixed;top:0;left:0;height:3px;width:100%;transform:scaleX(0);transform-origin:0 50%;background:linear-gradient(90deg,#E6007E,#FF4DA6);box-shadow:0 0 12px rgba(255,77,166,.7);z-index:100;pointer-events:none;will-change:transform';
+  document.body.appendChild(bar);
+  let ticking=false;
+  const upd=()=>{ ticking=false; const h=document.documentElement; const max=(h.scrollHeight-h.clientHeight)||1; const p=Math.min(1,Math.max(0,(window.pageYOffset||h.scrollTop||0)/max)); bar.style.transform='scaleX('+p.toFixed(4)+')'; };
+  const onScroll=()=>{ if(!ticking){ ticking=true; requestAnimationFrame(upd); } };
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll, {passive:true});
+  window.__nbProg=upd; upd();
+}
+
 /* ---------- boot (after deferred CDN libs have loaded) ---------- */
 function boot(){
   if(window.gsap){
@@ -1652,6 +1677,7 @@ function boot(){
     gsap.ticker.lagSmoothing(0);
   }
   applyView();
+  setupProgress();
 }
 
 if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', boot); }
