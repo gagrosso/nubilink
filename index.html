@@ -105,6 +105,8 @@
 
   /* ---- helpers ---- */
   .grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+  .grad-shimmer{background-image:linear-gradient(95deg,#E6007E 0%,#FF7AC2 50%,#E6007E 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:nbShimmer 7s ease-in-out infinite}
+  @keyframes nbShimmer{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
   .mono{font-family:var(--mono);text-transform:uppercase;letter-spacing:.14em}
   .glass{background:linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.026));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--gb,rgba(255,255,255,0.10));box-shadow:0 8px 32px rgba(0,0,0,0.36),inset 0 1px 0 rgba(255,255,255,0.07);transition:transform .35s cubic-bezier(.16,1,.3,1),box-shadow .35s ease,border-color .35s ease,background .35s ease}
   @supports not ((backdrop-filter:blur(2px)) or (-webkit-backdrop-filter:blur(2px))){ .glass{background:var(--s2)} }
@@ -678,7 +680,7 @@ function homePage(t){
           <div data-reveal class="mono" style="display:inline-flex;align-items:center;gap:9px;border:1px solid var(--b-strong);border-radius:999px;padding:7px 15px;margin-bottom:26px;font-size:11px;color:var(--t1)">
             <span style="width:7px;height:7px;border-radius:50%;background:${GRAD};display:inline-block;animation:nbPulse 3s ease-in-out infinite"></span>${e(t.heroEyebrow)}
           </div>
-          <h1 data-hero-h1 style="font-family:'Poppins';font-weight:700;font-size:clamp(40px,5.6vw,68px);line-height:1.02;letter-spacing:-0.035em;color:#fff;margin:0 0 24px">${e(t.heroA)}<br><span class="grad-text">${e(t.heroHi)}</span></h1>
+          <h1 data-hero-h1 style="font-family:'Poppins';font-weight:700;font-size:clamp(40px,5.6vw,68px);line-height:1.02;letter-spacing:-0.035em;color:#fff;margin:0 0 24px">${e(t.heroA)}<br><span class="grad-shimmer">${e(t.heroHi)}</span></h1>
           <p data-reveal style="font-size:clamp(16px,1.5vw,19px);line-height:1.62;color:var(--t1);max-width:540px;margin:0 0 34px">${e(t.heroSub)}</p>
           <div data-reveal style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:40px">
             <button data-act="contact" data-magnetic class="cta-glow" style="display:inline-flex;align-items:center;gap:9px;border:none;background:${GRAD};color:#fff;font-family:'Poppins';font-weight:600;font-size:16px;cursor:pointer;padding:15px 28px;border-radius:999px">${e(t.heroCta1)} <span class="cta-arr" style="font-size:17px">&rarr;</span></button>
@@ -726,7 +728,7 @@ function homePage(t){
       <div class="hero-grid" aria-hidden="true" style="opacity:.2;z-index:0"></div>
       <div style="position:relative;z-index:1;max-width:1120px;margin:0 auto;display:grid;grid-template-columns:auto 1fr;gap:clamp(28px,5vw,72px);align-items:center" data-nbhalf>
         <div data-reveal="left" style="display:flex;align-items:flex-start;line-height:.86">
-          <span class="grad-text" data-countup="25" data-suffix="%" style="font-family:'Poppins';font-weight:800;font-size:clamp(120px,20vw,260px);letter-spacing:-0.04em;font-variant-numeric:tabular-nums">0%</span>
+          <span class="grad-shimmer" data-countup="25" data-suffix="%" style="font-family:'Poppins';font-weight:800;font-size:clamp(120px,20vw,260px);letter-spacing:-0.04em;font-variant-numeric:tabular-nums">0%</span>
         </div>
         <div data-reveal="right">
           <div class="mono" style="font-size:11px;color:#FF4DA6;margin-bottom:14px">${e(t.metricKicker)}</div>
@@ -1222,6 +1224,8 @@ const app = document.getElementById('app');
 let lenis = null;
 const film = { mm:null, splits:[], shader:null, carousel:null, cloud:null, globe:null };
 const prefersReduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* coalesce a high-frequency handler (mousemove) to once per frame — keeps getBoundingClientRect reads off the hot path */
+const rafThrottle = (fn)=>{ let queued=false, la=null; return function(){ la=arguments; if(queued) return; queued=true; requestAnimationFrame(()=>{ queued=false; fn.apply(null, la); }); }; };
 
 /* ---- WebGL aurora hero ---- */
 /* 3D particle "cloud" hero centerpiece (Three.js) — glowing nebula that drifts,
@@ -1726,7 +1730,7 @@ function initFilm(){
     if(isDesk){
       const psec=document.querySelector('[data-partners]');
       if(psec){
-        const onMove=(ev)=>{ const r=psec.getBoundingClientRect(); psec.style.setProperty('--mx', ((ev.clientX-r.left)/r.width*100).toFixed(1)+'%'); psec.style.setProperty('--my', ((ev.clientY-r.top)/r.height*100).toFixed(1)+'%'); };
+        const onMove=rafThrottle((ev)=>{ const r=psec.getBoundingClientRect(); psec.style.setProperty('--mx', ((ev.clientX-r.left)/r.width*100).toFixed(1)+'%'); psec.style.setProperty('--my', ((ev.clientY-r.top)/r.height*100).toFixed(1)+'%'); });
         psec.addEventListener('mousemove', onMove);
         cleanups.push(()=>psec.removeEventListener('mousemove', onMove));
       }
@@ -1747,7 +1751,7 @@ function initFilm(){
       document.querySelectorAll('[data-magnetic]').forEach(el=>{
         const xTo=gsap.quickTo(el,'x',{duration:0.4,ease:'elastic.out(1,0.4)'});
         const yTo=gsap.quickTo(el,'y',{duration:0.4,ease:'elastic.out(1,0.4)'});
-        const move=(ev)=>{ const r=el.getBoundingClientRect(); xTo((ev.clientX-(r.left+r.width/2))*0.35); yTo((ev.clientY-(r.top+r.height/2))*0.35); };
+        const move=rafThrottle((ev)=>{ const r=el.getBoundingClientRect(); xTo((ev.clientX-(r.left+r.width/2))*0.35); yTo((ev.clientY-(r.top+r.height/2))*0.35); });
         const leave=()=>{ xTo(0); yTo(0); };
         el.addEventListener('mousemove',move);
         el.addEventListener('mouseleave',leave);
@@ -1755,7 +1759,7 @@ function initFilm(){
       });
       // glass cards — magenta sheen that follows the cursor (echoes the hero network)
       document.querySelectorAll('.glass-i').forEach(card=>{
-        const m=(ev)=>{ const r=card.getBoundingClientRect(); card.style.setProperty('--cx',((ev.clientX-r.left)/r.width*100).toFixed(1)+'%'); card.style.setProperty('--cy',((ev.clientY-r.top)/r.height*100).toFixed(1)+'%'); };
+        const m=rafThrottle((ev)=>{ const r=card.getBoundingClientRect(); card.style.setProperty('--cx',((ev.clientX-r.left)/r.width*100).toFixed(1)+'%'); card.style.setProperty('--cy',((ev.clientY-r.top)/r.height*100).toFixed(1)+'%'); });
         card.addEventListener('mousemove',m);
         cleanups.push(()=>card.removeEventListener('mousemove',m));
       });
