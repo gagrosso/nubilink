@@ -114,6 +114,10 @@
   .nb-emk{display:inline-flex;align-items:center;flex:0 0 auto}
   .nb-emk::before{content:"";width:20px;height:2px;border-radius:2px;background:var(--grad)}
   .nb-emk::after{content:"";width:9px;height:9px;border-radius:50%;margin-left:2px;background:radial-gradient(circle,#FF4DA6 0 36%,transparent 40%),#0A0A0C;border:1.4px solid #FF4DA6;box-shadow:0 0 7px rgba(255,77,166,.5)}
+  /* lit "fold" seam between same-colour sections (replaces flat borders) */
+  .nb-seamed{position:relative}
+  .nb-seamed::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;z-index:2;background:linear-gradient(90deg,transparent,rgba(255,255,255,.10) 28%,rgba(255,77,166,.45) 50%,rgba(255,255,255,.10) 72%,transparent)}
+  h2{text-wrap:balance}
   @media (hover:hover) and (pointer:fine){
     .glass-i:hover{transform:translateY(-6px);--gb:rgba(255,77,166,.40);box-shadow:0 22px 50px -18px rgba(230,0,126,.45),0 12px 30px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.10)}
     .glass-i:hover::before{opacity:1}
@@ -660,11 +664,12 @@ function homePage(t){
     <!-- 25% METRIC (count-up anchor) -->
     <section style="position:relative;overflow:hidden;background:var(--s0);padding:clamp(64px,9vw,112px) 28px">
       <div class="orb" style="width:520px;height:520px;left:-120px;top:-120px;background:radial-gradient(circle,rgba(230,0,126,.5),transparent 60%)"></div>
-      <div style="position:relative;max-width:1120px;margin:0 auto;display:grid;grid-template-columns:auto 1fr;gap:clamp(28px,5vw,72px);align-items:center" data-nbhalf>
-        <div data-reveal style="display:flex;align-items:flex-start;line-height:.86">
+      <div class="hero-grid" aria-hidden="true" style="opacity:.2;z-index:0"></div>
+      <div style="position:relative;z-index:1;max-width:1120px;margin:0 auto;display:grid;grid-template-columns:auto 1fr;gap:clamp(28px,5vw,72px);align-items:center" data-nbhalf>
+        <div data-reveal="left" style="display:flex;align-items:flex-start;line-height:.86">
           <span class="grad-text" data-countup="25" data-suffix="%" style="font-family:'Poppins';font-weight:800;font-size:clamp(120px,20vw,260px);letter-spacing:-0.04em;font-variant-numeric:tabular-nums">0%</span>
         </div>
-        <div data-reveal>
+        <div data-reveal="right">
           <div class="mono" style="font-size:11px;color:#FF4DA6;margin-bottom:14px">${e(t.metricKicker)}</div>
           <p style="font-family:'Poppins';font-weight:600;font-size:clamp(20px,2.4vw,28px);line-height:1.3;letter-spacing:-0.02em;color:#fff;margin:0 0 22px;max-width:460px">${e(t.metricLabel)}</p>
           <div style="display:flex;flex-wrap:wrap;gap:10px">
@@ -708,7 +713,8 @@ function homePage(t){
     <!-- AI BAND -->
     <section style="background:var(--s1);padding:clamp(56px,7vw,96px) 28px;position:relative;overflow:hidden">
       <div class="orb" style="width:420px;height:420px;top:-120px;right:-80px;background:radial-gradient(circle,rgba(255,77,166,.42),transparent 60%)"></div>
-      <div style="max-width:1000px;margin:0 auto;position:relative;text-align:center">
+      <div class="hero-grid" aria-hidden="true" style="opacity:.18;z-index:0"></div>
+      <div style="max-width:1000px;margin:0 auto;position:relative;z-index:1;text-align:center">
         <div data-reveal class="mono" style="display:inline-flex;align-items:center;gap:9px;border:1px solid rgba(255,77,166,0.3);border-radius:999px;padding:7px 15px;margin-bottom:22px;font-size:11px;color:#FF4DA6"><span style="width:7px;height:7px;border-radius:50%;background:${GRAD}"></span>${e(t.aiEyebrow)}</div>
         <h2 data-reveal style="font-family:'Poppins';font-weight:700;font-size:clamp(26px,3.6vw,40px);line-height:1.12;letter-spacing:-0.03em;color:#fff;margin:0 auto 18px;max-width:760px">${e(t.aiTitle)}</h2>
         <p data-reveal style="font-size:17px;line-height:1.6;color:var(--t1);margin:0 auto;max-width:600px">${e(t.aiBody)}</p>
@@ -716,7 +722,7 @@ function homePage(t){
     </section>
 
     <!-- AWS CERTIFICATIONS -->
-    <section style="background:var(--s1);padding:clamp(60px,8vw,96px) 28px;border-top:1px solid var(--b-soft);position:relative;overflow:hidden">
+    <section class="nb-seamed" style="background:var(--s1);padding:clamp(60px,8vw,96px) 28px;position:relative;overflow:hidden">
       <div class="orb" style="width:520px;height:520px;left:50%;top:18%;transform:translateX(-50%);background:radial-gradient(circle,rgba(230,0,126,.22),transparent 60%);opacity:.35"></div>
       <div style="position:relative;z-index:1;max-width:980px;margin:0 auto;text-align:center">
         <div data-reveal style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px"><span class="nb-emk"></span><span class="mono" style="font-size:11px;color:#FF4DA6">${e(t.awsCertEyebrow)}</span></div>
@@ -778,9 +784,10 @@ function homePage(t){
     </section>
 
     <!-- PARTNERS -->
-    <section class="partner-section" data-partners style="position:relative;overflow:hidden;background:var(--s1);padding:clamp(64px,8vw,104px) 28px;border-top:1px solid var(--b-soft)">
+    <section class="partner-section nb-seamed" data-partners style="position:relative;overflow:hidden;background:var(--s1);padding:clamp(64px,8vw,104px) 28px">
       <div class="partner-spot" aria-hidden="true"></div>
       <div class="orb" style="width:560px;height:560px;left:50%;top:14%;transform:translateX(-50%);background:radial-gradient(circle,rgba(230,0,126,.26),transparent 60%);opacity:.4"></div>
+      <div class="hero-grid" aria-hidden="true" style="opacity:.18;z-index:0"></div>
       <div style="position:relative;z-index:1;max-width:1100px;margin:0 auto">
         <div style="max-width:680px;margin-bottom:44px">
           <div data-reveal style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><span class="nb-emk"></span><span class="mono" style="font-size:11px;color:#FF4DA6">${e(t.partnersEyebrow)}</span></div>
@@ -824,7 +831,7 @@ function homePage(t){
     </section>
 
     <!-- CTA BAND -->
-    <section style="position:relative;overflow:hidden;background:var(--s0);padding:clamp(72px,9vw,124px) 28px;border-top:1px solid var(--b-soft)">
+    <section class="nb-seamed" style="position:relative;overflow:hidden;background:var(--s0);padding:clamp(72px,9vw,124px) 28px">
       <div class="hero-grid" aria-hidden="true" style="opacity:.3"></div>
       <div class="orb" style="width:820px;height:620px;left:50%;top:54%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(230,0,126,.52),transparent 62%);opacity:.9"></div>
       <div class="orb" style="width:460px;height:460px;left:50%;top:60%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(255,77,166,.45),transparent 60%);opacity:.75"></div>
@@ -1454,9 +1461,10 @@ function initFilm(){
     }
 
     // generic scroll reveals — batched so siblings entering together cascade (varied choreography)
+    const RV={left:{x:-44,y:0},right:{x:44,y:0},up:{x:0,y:30},pop:{x:0,y:22,scale:.94}};
     ScrollTrigger.batch('[data-reveal]', {
       start:'top 88%', once:true,
-      onEnter: b => gsap.fromTo(b, {opacity:0,y:26}, {opacity:1,y:0,duration:0.72,ease:'power3.out',stagger:0.09,overwrite:true,clearProps:'transform'})
+      onEnter: b => b.forEach((el,i)=>{ const f=RV[el.getAttribute('data-reveal')]||RV.up; gsap.fromTo(el, Object.assign({opacity:0},f), {opacity:1,x:0,y:0,scale:1,duration:0.78,ease:'power3.out',delay:i*0.06,overwrite:true,clearProps:'transform'}); })
     });
 
     // partner cards — pop in one by one when the grid actually scrolls into view
