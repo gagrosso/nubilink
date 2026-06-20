@@ -229,10 +229,10 @@
 const LANG = {
   es: {
     navHome:'Inicio', navAbout:'Nubilink', navServices:'Servicios', navContact:'Contacto',
-    ctaTalk:'Hablemos',
+    ctaTalk:'Agenda una llamada',
     heroEyebrow:'AWS Select Consulting Partner · AR · ES · US',
-    heroA:'Soluciones innovadoras', heroHi:'en la nube.',
-    heroSub:'Diseñamos, migramos y operamos tu infraestructura en AWS para que sea más segura, más eficiente y hasta un 25% más económica. Tú creces; de la nube nos ocupamos nosotros.',
+    heroA:'Reduce tu gasto en AWS', heroHi:'hasta un 25%.',
+    heroSub:'Diseñamos, migramos y operamos tu infraestructura en AWS para que sea más segura, más eficiente y sin sorpresas en la factura. Tú creces; de la nube nos ocupamos nosotros.',
     heroCta1:'Agenda una llamada', heroCta2:'Saber más',
     heroStatSave:'menos de gasto cloud con FinOps',
     heroStatOps:'monitorización y soporte',
@@ -306,7 +306,7 @@ const LANG = {
       {quote:'Cuando necesitamos migrar nuestro entorno AWS en horario de baja demanda, el equipo de Nubilink nos apoyó en cada paso. Buscábamos una solución de pagos internacionales y encontramos un partner que nos da tranquilidad continua.', name:'Andrés Lapuente', role:'E-wave', initial:'A'}
     ],
     ctaBandTitle:'Nubilink. La inversión que rinde.', ctaBandSub:'Hablemos de cómo llevar tu infraestructura cloud al siguiente nivel — con un partner que te escucha.',
-    ctaBandBtn:'Contáctanos',
+    ctaBandBtn:'Agenda una llamada',
     aboutEyebrow:'Nuestra empresa',
     aboutTitle:'Somos un AWS Select Consulting Partner.',
     aboutLede:'Nos dedicamos a cubrir las necesidades de nuestros clientes con tecnología cloud segura, fiable y eficiente — operando a escala global.',
@@ -345,10 +345,10 @@ const LANG = {
   },
   en: {
     navHome:'Home', navAbout:'Nubilink', navServices:'Services', navContact:'Contact',
-    ctaTalk:'Let’s talk',
+    ctaTalk:'Book a call',
     heroEyebrow:'AWS Select Consulting Partner · AR · ES · US',
-    heroA:'Innovative solutions', heroHi:'in the cloud.',
-    heroSub:'We design, migrate and operate your AWS infrastructure so it stays more secure, more efficient and up to 25% lower in cloud cost. You grow; we take care of the cloud.',
+    heroA:'Cut your AWS bill', heroHi:'by up to 25%.',
+    heroSub:'We design, migrate and operate your AWS infrastructure so it stays more secure, more efficient and free of billing surprises. You grow; we take care of the cloud.',
     heroCta1:'Book a call', heroCta2:'Learn more',
     heroStatSave:'lower cloud spend with FinOps',
     heroStatOps:'monitoring and support',
@@ -422,7 +422,7 @@ const LANG = {
       {quote:'When we needed to migrate our AWS environment during off-peak hours, Nubilink’s team supported us every step of the way. Seeking a solution for our payment challenges, we found a partner that gives us ongoing peace of mind.', name:'Andrés Lapuente', role:'E-wave', initial:'A'}
     ],
     ctaBandTitle:'Nubilink. The investment that pays off.', ctaBandSub:'Let’s talk about taking your cloud infrastructure to the next level — with a partner that listens.',
-    ctaBandBtn:'Contact us',
+    ctaBandBtn:'Book a call',
     aboutEyebrow:'Our company',
     aboutTitle:'We are an AWS Select Consulting Partner.',
     aboutLede:'We are dedicated to meeting our clients’ needs with secure, reliable and efficient cloud technology — operating at a global scale.',
@@ -607,7 +607,7 @@ function navBar(t){
       </nav>
       <div style="display:flex;align-items:center;gap:13px">
         <button data-act="toggleLang" style="display:flex;align-items:center;gap:6px;background:none;border:1px solid var(--b-strong);border-radius:999px;cursor:pointer;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--t1);padding:7px 13px;letter-spacing:0.06em">${state.lang==='es'?'EN':'ES'}</button>
-        <button data-act="contact" data-magnetic class="cta-glow" style="display:none;border:none;background:${GRAD};color:#fff;font-family:'Poppins';font-weight:600;font-size:14px;cursor:pointer;padding:11px 20px;border-radius:999px" data-nbcta>${e(t.ctaTalk)}</button>
+        <button data-act="contact" data-magnetic class="cta-glow" style="display:inline-flex;align-items:center;border:none;background:${GRAD};color:#fff;font-family:'Poppins';font-weight:600;font-size:14px;cursor:pointer;padding:11px 20px;border-radius:999px" data-nbcta>${e(t.ctaTalk)}</button>
         <button data-act="toggleMenu" data-nbburger style="flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:8px">
           <span style="width:22px;height:2px;background:#fff;display:block"></span>
           <span style="width:22px;height:2px;background:#fff;display:block"></span>
