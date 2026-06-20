@@ -136,6 +136,16 @@
   .nb-range::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid #FF4DA6;box-shadow:0 0 14px rgba(255,77,166,.7);cursor:grab}
   .nb-range::-moz-range-track{height:6px;border-radius:999px;background:transparent}
   .nb-range:focus-visible::-webkit-slider-thumb{outline:2px solid #FF4DA6;outline-offset:3px}
+  /* page transitions (native View Transitions API) + tactile button press */
+  @media (prefers-reduced-motion: no-preference){
+    ::view-transition-old(root){animation:nbVtOut .24s cubic-bezier(.4,0,.2,1) both}
+    ::view-transition-new(root){animation:nbVtIn .38s cubic-bezier(.16,1,.3,1) both}
+  }
+  @keyframes nbVtOut{to{opacity:0}}
+  @keyframes nbVtIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  [data-act="toggleLang"]{transition:border-color .25s ease,color .25s ease}
+  .cta-glow:active,.btn-ghost:active{filter:brightness(.92)}
+  @media (hover:hover) and (pointer:fine){ [data-act="toggleLang"]:hover{border-color:rgba(255,77,166,.5);color:#fff} }
   .pill{transition:border-color .3s ease,color .3s ease,transform .25s cubic-bezier(.16,1,.3,1)}
   .btn-ghost{transition:border-color .3s ease,background .3s ease,transform .2s ease}
   .rail-fill{position:relative}
@@ -1807,17 +1817,18 @@ function scrollTop(){
 
 function render(opts){
   opts = opts || {};
-  const fade = opts.fade && window.gsap && !prefersReduce();
-  if(fade){
+  const swap = ()=>{ applyView(); if(opts.top) scrollTop(); };
+  // modern: native View Transitions API (same-document) — smooth branded cross-fade
+  if(opts.fade && !prefersReduce() && document.startViewTransition){
+    try{ document.startViewTransition(swap); return; }catch(_){}
+  }
+  // fallback: GSAP fade
+  if(opts.fade && window.gsap && !prefersReduce()){
     gsap.to(app,{autoAlpha:0,duration:0.16,ease:'power1.in',onComplete(){
-      applyView();
-      if(opts.top) scrollTop();
+      swap();
       gsap.fromTo(app,{autoAlpha:0},{autoAlpha:1,duration:0.26,ease:'power1.out'});
     }});
-  } else {
-    applyView();
-    if(opts.top) scrollTop();
-  }
+  } else { swap(); }
 }
 
 function go(page){
