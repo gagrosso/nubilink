@@ -1073,27 +1073,27 @@ function startAurora(canvas){
     'uniform vec2 uRes;uniform float uTime;',
     'float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
     'float noise(vec2 p){vec2 i=floor(p),f=fract(p);float a=hash(i),b=hash(i+vec2(1.,0.)),c=hash(i+vec2(0.,1.)),d=hash(i+vec2(1.,1.));vec2 u=f*f*(3.-2.*f);return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);}',
-    'float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<3;i++){v+=a*noise(p);p*=2.02;a*=.5;}return v;}',
+    'float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*noise(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}',
     'void main(){',
     ' vec2 uv=gl_FragCoord.xy/uRes;float asp=uRes.x/uRes.y;vec2 p=vec2(uv.x*asp,uv.y);',
-    ' float t=uTime*0.05;',
-    ' vec2 q=vec2(fbm(p*1.4+vec2(0.0,t)),fbm(p*1.4+vec2(5.2,1.3)-t));',
-    ' float n=fbm(p*1.3+q*1.1+t*0.4);',
-    ' vec3 dark=vec3(0.039,0.039,0.047);',
-    ' vec3 mag1=vec3(0.902,0.0,0.494);',
-    ' vec3 mag2=vec3(1.0,0.302,0.651);',
-    ' vec3 viol=vec3(0.34,0.06,0.42);',
-    ' vec2 c1=vec2((0.34+0.18*sin(t*1.3))*asp,0.56+0.16*cos(t*1.1));',
-    ' vec2 c2=vec2((0.70+0.16*cos(t*0.9))*asp,0.40+0.18*sin(t*1.4));',
-    ' float d1=exp(-2.3*length(p-c1));',
-    ' float d2=exp(-2.6*length(p-c2));',
-    ' vec3 col=dark;',
-    ' col=mix(col,viol,smoothstep(0.25,0.95,n)*0.55);',
-    ' col+=mag1*d1*0.95;',
-    ' col+=mag2*d2*0.85;',
-    ' float vig=smoothstep(1.25,0.25,length(uv-0.5));',
-    ' col*=mix(0.62,1.0,vig);',
-    ' col+=( hash(gl_FragCoord.xy)-0.5)*0.02;',
+    ' float t=uTime*0.045;',
+    ' vec2 q=vec2(fbm(p*1.1+vec2(0.0,t*0.8)),fbm(p*1.1+vec2(3.4,-t)));',
+    ' vec2 r=vec2(fbm(p*1.1+1.6*q+vec2(1.7,9.2)+t*0.5),fbm(p*1.1+1.6*q+vec2(8.3,2.8)-t*0.4));',
+    ' float f=fbm(p*1.0+1.4*r);',
+    ' vec3 c0=vec3(0.031,0.031,0.039);',
+    ' vec3 c1=vec3(0.13,0.02,0.17);',
+    ' vec3 c2=vec3(0.85,0.0,0.46);',
+    ' vec3 c3=vec3(1.0,0.30,0.66);',
+    ' vec3 col=c0;',
+    ' col=mix(col,c1,smoothstep(0.12,0.82,f));',
+    ' col=mix(col,c2,smoothstep(0.46,1.08,length(r))*0.72);',
+    ' vec2 core=vec2((0.72+0.12*sin(t*1.5))*asp,0.5+0.12*cos(t*1.2));',
+    ' float d=exp(-3.1*length(p-core));',
+    ' col=mix(col,c3,d*0.5);',
+    ' col*=0.7+0.34*f;',
+    ' float vig=smoothstep(1.45,0.2,length(uv-0.5));',
+    ' col*=mix(0.4,1.05,vig);',
+    ' col+=(hash(gl_FragCoord.xy)-0.5)*0.014;',
     ' gl_FragColor=vec4(col,1.0);',
     '}'
   ].join('\n');
@@ -1119,7 +1119,7 @@ function startAurora(canvas){
     const r=canvas.getBoundingClientRect();
     const cssW=r.width||canvas.clientWidth||0, cssH=r.height||canvas.clientHeight||0;
     if(cssW<2||cssH<2) return; // not laid out yet — wait
-    const scl=Math.min(1, 880/Math.max(cssW,cssH));
+    const scl=Math.min(1, 1300/Math.max(cssW,cssH));
     const w=Math.max(2,Math.round(cssW*scl)), h=Math.max(2,Math.round(cssH*scl));
     if(canvas.width!==w||canvas.height!==h){ canvas.width=w; canvas.height=h; gl.viewport(0,0,w,h); }
     gl.uniform2f(uRes, canvas.width, canvas.height);
