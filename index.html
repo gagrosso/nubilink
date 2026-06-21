@@ -231,6 +231,12 @@
   @media (min-width:981px){
     .svc-act{min-height:100vh;display:flex;flex-direction:column;justify-content:center}
     .svc-panel{min-height:360px}
+    /* carousel mode — one card centred at a time, flies in from left / out right (like the hero) */
+    .svc-viewport.is-carousel{position:relative;min-height:420px}
+    .svc-track.is-carousel{display:block;position:relative;padding:0}
+    .svc-track.is-carousel .svc-panel{position:absolute;top:0;left:0;right:0;margin:0 auto;width:min(88vw,1040px);will-change:transform,opacity;transition:box-shadow .35s ease,border-color .35s ease,background .35s ease}
+    .svc-track.is-carousel .svc-panel:first-child{position:relative}
+    .svc-track.is-carousel .svc-panel:not(:first-child){opacity:0;visibility:hidden}
   }
   @media (max-width:980px){
     .svc-track{flex-direction:column}
@@ -1803,9 +1809,10 @@ function initFilm(){
   mm.add({
     isMotion:'(prefers-reduced-motion: no-preference)',
     isReduce:'(prefers-reduced-motion: reduce)',
-    isDesk:'(min-width: 981px) and (pointer: fine)'
+    isDesk:'(min-width: 981px) and (pointer: fine)',
+    isWide:'(min-width: 981px)'
   }, (ctx)=>{
-    const { isReduce, isDesk } = ctx.conditions;
+    const { isReduce, isDesk, isWide } = ctx.conditions;
     const cleanups=[];
 
     if(isReduce){
@@ -1935,23 +1942,35 @@ function initFilm(){
     const act=document.querySelector('[data-svc-act]');
     const track=document.getElementById('svcTrack');
     if(act && track){
-      if(isDesk){
+      if(isWide){
+        // SERVICES CAROUSEL — one card centred at a time; exits right, next enters from the left (same conveyor as the hero)
         const vp=act.querySelector('.svc-viewport');
         const fill=act.querySelector('[data-rail-fill]');
         const label=act.querySelector('[data-rail-label]');
-        const names=gsap.utils.toArray('.svc-panel',track).map(p=>p.getAttribute('data-name')||'');
-        const dist=()=> Math.max(0, track.scrollWidth - (vp?vp.clientWidth:window.innerWidth));
+        const panels=gsap.utils.toArray('.svc-panel',track);
+        const names=panels.map(p=>p.getAttribute('data-name')||'');
+        const n=panels.length;
+        vp.classList.add('is-carousel'); track.classList.add('is-carousel');
+        cleanups.push(()=>{ vp.classList.remove('is-carousel'); track.classList.remove('is-carousel'); vp.style.minHeight=''; });
+        const sizeVp=()=>{ let h=0; panels.forEach(p=>{ const ph=p.offsetHeight; if(ph>h) h=ph; }); if(h>0) vp.style.minHeight=h+'px'; };
+        sizeVp();
+        const flyR=()=> Math.round(window.innerWidth - vp.getBoundingClientRect().left + 60);
+        const flyL=()=> Math.round(vp.getBoundingClientRect().left + vp.clientWidth + 60);
+        gsap.set(panels[0],{x:0,autoAlpha:1});
+        for(let i=1;i<n;i++) gsap.set(panels[i],{x:-flyL(),autoAlpha:0});
         let cur=-1;
-        gsap.to(track,{x:()=>-dist(),ease:'none',
-          scrollTrigger:{trigger:act,pin:true,scrub:0.5,start:'top top',
-            end:()=>'+='+dist(), invalidateOnRefresh:true, anticipatePin:1,
-            onUpdate(self){
-              const pr=self.progress;
-              if(fill) fill.style.width=(pr*100).toFixed(1)+'%';
-              const idx=Math.min(names.length-1, Math.floor(pr*names.length+0.0001));
-              if(idx!==cur && label){ cur=idx; label.textContent=('0'+(idx+1))+' / 0'+names.length+' · '+names[idx]; }
-            }
-          }});
+        const setActive=(pr)=>{ if(fill && pr!=null) fill.style.width=(pr*100).toFixed(1)+'%'; let best=0,bs=-Infinity; panels.forEach((p,i)=>{ const op=parseFloat(gsap.getProperty(p,'opacity'))||0; const x=Math.abs(parseFloat(gsap.getProperty(p,'x'))||0); const sc=op*1e5-x; if(sc>bs){ bs=sc; best=i; } }); if(best!==cur && label){ cur=best; label.textContent=('0'+(best+1))+' / 0'+n+' · '+names[best]; } };
+        const tl=gsap.timeline({ scrollTrigger:{ trigger:act, start:'top top', end:()=>'+='+Math.round((n-1)*0.8*window.innerHeight), pin:true, scrub:true, anticipatePin:1, invalidateOnRefresh:true, onUpdate:(self)=>setActive(self.progress), onRefresh:(self)=>{ sizeVp(); setActive(self?self.progress:0); } } });
+        tl.to(panels[0],{x:0,duration:0.5});
+        for(let i=1;i<n;i++){
+          const lbl='s'+i; tl.addLabel(lbl);
+          tl.to(panels[i-1],{x:()=>flyR(),duration:0.95,ease:'power2.in'},lbl);
+          tl.to(panels[i-1],{autoAlpha:0,duration:0.4,ease:'power1.in'},lbl+'+=0.5');
+          tl.fromTo(panels[i],{x:()=>-flyL()},{x:0,duration:0.85,ease:'power3.out'},lbl+'+=0.42');
+          tl.fromTo(panels[i],{autoAlpha:0},{autoAlpha:1,duration:0.42,ease:'power1.out'},lbl+'+=0.46');
+          tl.to(panels[i],{x:0,duration:0.45});
+        }
+        setActive(0);
       } else {
         gsap.utils.toArray('.svc-panel',track).forEach(p=>{
           gsap.fromTo(p,{opacity:0,y:24},{opacity:1,y:0,duration:0.7,ease:'power3.out',
