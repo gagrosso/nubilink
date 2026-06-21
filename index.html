@@ -83,14 +83,17 @@
   .partner-spot{position:absolute;inset:0;pointer-events:none;background:radial-gradient(440px circle at var(--mx,50%) var(--my,40%),rgba(230,0,126,.16),transparent 62%);opacity:0;transition:opacity .45s ease;z-index:0}
   .partner-section:hover .partner-spot{opacity:1}
   /* clients — white band, logos float with a center-zoom lens (JS-driven) */
-  .client-band{background:#fff}
-  .client-stage{position:relative;overflow:hidden}
-  .client-stage.is-carousel{height:212px}
-  .client-track{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:14px 30px;padding:6px 24px}
-  .client-track.is-carousel{position:absolute;left:0;top:0;height:100%;flex-wrap:nowrap;justify-content:flex-start;gap:0;padding:0}
-  .client-float{height:96px;width:auto;flex:0 0 auto;display:block}
-  .client-track.is-carousel .client-float{margin:0 52px;transform-origin:center center;will-change:transform}
-  .client-track:not(.is-carousel) .client-float[aria-hidden="true"]{display:none}
+  .client-band{background:#F4F5F7}
+  .client-stage{position:relative;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+  .client-track{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:24px 46px;padding:4px 24px}
+  .client-track.is-marquee{flex-wrap:nowrap;justify-content:flex-start;width:max-content;gap:0;padding:0;animation:nbMarquee linear infinite;will-change:transform}
+  .client-stage:hover .client-track.is-marquee{animation-play-state:paused}
+  @keyframes nbMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+  @media (prefers-reduced-motion:reduce){ .client-track.is-marquee{animation:none;width:auto;flex-wrap:wrap;justify-content:center;gap:24px 46px} }
+  .client-float{height:clamp(30px,4.3vw,46px);width:auto;flex:0 0 auto;display:block;filter:grayscale(1);opacity:.46;transition:opacity .3s ease,filter .3s ease}
+  .client-track.is-marquee .client-float{margin:0 clamp(22px,2.7vw,46px)}
+  .client-track:not(.is-marquee) .client-float[aria-hidden="true"]{display:none}
+  @media (hover:hover) and (pointer:fine){ .client-float:hover{opacity:.95;filter:grayscale(0)} }
 
   /* ---- film grain (global, static texture) ---- */
   /* film grain — no blend mode (mix-blend on a fixed full-screen layer forces a costly re-blend on every scroll frame) */
@@ -361,7 +364,7 @@ const LANG = {
     partnersEyebrow:'Acuerdos',
     partnersTitle:'Colaboración estratégica con partners asociados.',
     partnersLede:'Trabajamos con partners asociados en casos específicos, atendiendo a los requerimientos particulares de tu negocio.',
-    clientsTitle:'Empresas e instituciones que confían en Nubilink',
+    clientsTitle:'Más de dos décadas potenciando organizaciones líderes',
     faqEyebrow:'Preguntas frecuentes',
     faqTitle:'Lo que sueles preguntarte antes de empezar.',
     faqLede:'Y si te queda alguna duda, la resolvemos en una llamada — sin compromiso.',
@@ -519,7 +522,7 @@ const LANG = {
     partnersEyebrow:'Alliances',
     partnersTitle:'Strategic collaboration with associated partners.',
     partnersLede:'We work with associated partners on specific cases, addressing the particular requirements of your business.',
-    clientsTitle:'Companies and institutions that trust Nubilink',
+    clientsTitle:'Over two decades powering leading organizations',
     faqEyebrow:'Frequently asked questions',
     faqTitle:'What you usually wonder before starting.',
     faqLede:'And if anything is still unclear, we sort it out on a quick call — no strings attached.',
@@ -1029,13 +1032,13 @@ function homePage(t){
     </section>
 
     ${SHOW_CLIENTS ? `
-    <!-- CLIENTS — white band, center-zoom float carousel -->
-    <section class="client-band" style="padding:48px 0 54px;overflow:hidden">
-      <p class="mono" style="text-align:center;font-size:11px;color:#8A8A94;margin:0 0 26px;padding:0 28px">${e(t.clientsTitle)}</p>
+    <!-- CLIENTS — light "trusted by" band, continuous right-to-left marquee -->
+    <section class="client-band" style="padding:clamp(54px,8vw,86px) 0;overflow:hidden">
+      <h2 data-reveal style="text-align:center;font-weight:700;font-size:clamp(19px,2.7vw,30px);line-height:1.2;letter-spacing:-0.02em;color:#16161A;margin:0 auto clamp(34px,5vw,52px);padding:0 28px;max-width:760px">${e(t.clientsTitle)}</h2>
       <div class="client-stage" data-cstage>
         <div class="client-track" data-ctrack>
-          ${CLIENT_LOGOS.map(l => `<img class="client-float" src="clientes/${l.f}.png" alt="${e(l.n)}" width="300" height="118" />`).join('')}
-          ${CLIENT_LOGOS.map(l => `<img class="client-float" src="clientes/${l.f}.png" alt="" aria-hidden="true" width="300" height="118" />`).join('')}
+          ${CLIENT_LOGOS.map(l => `<img class="client-float" src="clientes/${l.f}.png" alt="${e(l.n)}" width="300" height="118" loading="lazy" />`).join('')}
+          ${CLIENT_LOGOS.map(l => `<img class="client-float" src="clientes/${l.f}.png" alt="" aria-hidden="true" width="300" height="118" loading="lazy" />`).join('')}
         </div>
       </div>
     </section>` : ''}
@@ -1743,43 +1746,20 @@ function initClientsCarousel(){
   if(!stage) return null;
   const track=stage.querySelector('[data-ctrack]');
   if(!track) return null;
-  const logos=Array.from(track.children);
-  stage.classList.add('is-carousel'); track.classList.add('is-carousel');
-  let segW=0, stageLeft=0, stageCenter=0, half=1, ready=false;
-  function measure(){
-    segW=track.scrollWidth/2;
-    const r=stage.getBoundingClientRect();
-    stageLeft=r.left; stageCenter=r.left+r.width/2; half=Math.max(1,r.width/2);
-    logos.forEach(l=>{ l._base=l.offsetLeft+l.offsetWidth/2; });
-    ready = segW>10;
+  track.classList.add('is-marquee');                 // nowrap row + CSS keyframe scroll (right→left)
+  const SPEED=52;                                    // px per second — calm, premium pace
+  function measure(){                                // set duration from content width → constant speed
+    const segW=track.scrollWidth/2;                  // one copy of the logo set (two are rendered)
+    if(segW>40) track.style.animationDuration=(segW/SPEED).toFixed(1)+'s';
   }
-  let pending=logos.filter(i=>!i.complete).length;
+  const imgs=Array.from(track.children);
+  let pending=imgs.filter(i=>!i.complete).length;
   if(pending===0) measure();
-  else logos.forEach(i=>{ if(!i.complete) i.addEventListener('load',()=>{ if(--pending<=0) measure(); },{once:true}); });
+  else imgs.forEach(i=>{ if(!i.complete) i.addEventListener('load',()=>{ if(--pending<=0) measure(); },{once:true}); });
   requestAnimationFrame(()=>requestAnimationFrame(measure));
-  let offset=0, last=null, raf=0, running=true;
-  const SPEED=58;
-  function frame(ts){
-    if(!running){ raf=0; return; }
-    if(!ready){ raf=requestAnimationFrame(frame); return; }
-    if(last==null) last=ts;
-    const dt=Math.min(0.05,(ts-last)/1000); last=ts;
-    offset=(offset+SPEED*dt)%segW;
-    track.style.transform='translateX('+(-offset).toFixed(2)+'px)';
-    for(let i=0;i<logos.length;i++){
-      const l=logos[i];
-      const sc=stageLeft+l._base-offset;
-      let d=Math.abs(sc-stageCenter)/(half*0.6); if(d>1) d=1;
-      const tt=1-d, ease=tt*tt*(3-2*tt);
-      l.style.transform='scale('+(0.72+0.83*ease).toFixed(3)+')';
-      l.style.zIndex=(ease*100)|0;
-    }
-    raf=requestAnimationFrame(frame);
-  }
   const onR=()=>measure();
   window.addEventListener('resize',onR);
-  raf=requestAnimationFrame(frame);
-  return { stop(){ running=false; if(raf) cancelAnimationFrame(raf); window.removeEventListener('resize',onR); } };
+  return { stop(){ window.removeEventListener('resize',onR); track.classList.remove('is-marquee'); track.style.animationDuration=''; } };
 }
 
 function teardownFilm(){
