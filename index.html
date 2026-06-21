@@ -1839,16 +1839,17 @@ function initFilm(){
     if(hero && htrack && hslides.length>1){
       const n=hslides.length;
       const vpw=()=> hvp ? hvp.clientWidth : window.innerWidth;
-      const flyX=()=> Math.round(window.innerWidth - hvp.getBoundingClientRect().left + 60);   // fully off the RIGHT screen edge → messages fly across, over the network
+      const flyR=()=> Math.round(window.innerWidth - hvp.getBoundingClientRect().left + 60);   // off the RIGHT screen edge — exit flies across, over the network
+      const flyL=()=> Math.round(hvp.getBoundingClientRect().left + hvp.clientWidth + 60);     // off the LEFT screen edge — next message enters from the left
       if(hdotsWrap) hdotsWrap.style.display='flex';
       const setActive=()=>{
         let best=0, bestScore=-Infinity;
         hslides.forEach((sl,i)=>{ const op=parseFloat(gsap.getProperty(sl,'opacity'))||0; const x=Math.abs(parseFloat(gsap.getProperty(sl,'x'))||0); const score=op*100000-x; if(score>bestScore){ bestScore=score; best=i; } });
         hdots.forEach((d,i)=>d.classList.toggle('on', i===best));
       };
-      // initial: first message centered, the rest waiting off-screen to the right
+      // initial: first message centered, the rest waiting off-screen to the LEFT (they enter from the left)
       gsap.set(hslides[0], {x:0, autoAlpha:1});
-      for(let i=1;i<n;i++) gsap.set(hslides[i], {x:flyX(), autoAlpha:0});
+      for(let i=1;i<n;i++) gsap.set(hslides[i], {x:-flyL(), autoAlpha:0});
       const perSlide = isDesk ? 0.9 : 0.72;   // viewport-heights of scroll per message
       const tl=gsap.timeline({
         scrollTrigger:{
@@ -1860,12 +1861,12 @@ function initFilm(){
       tl.to(hslides[0], {x:0, duration:0.5});                                                  // hold first message
       for(let i=1;i<n;i++){
         const lbl='m'+i; tl.addLabel(lbl);
-        // OUT — current message flies off to the right, across the network, fading to a faint ghost as it goes (so the incoming dominates the cross)
-        tl.to(hslides[i-1], {x:()=>flyX(), duration:0.95, ease:'power2.in'}, lbl);
-        tl.to(hslides[i-1], {autoAlpha:0, duration:0.42, ease:'power2.in'}, lbl+'+=0.18');
-        // IN — next message flies in boldly from off-screen right WHILE the current is still leaving (overlap; both glide over the network, no hard collision)
-        tl.fromTo(hslides[i], {x:()=>flyX()}, {x:0, duration:0.9, ease:'power3.out'}, lbl+'+=0.45');
-        tl.fromTo(hslides[i], {autoAlpha:0}, {autoAlpha:1, duration:0.5, ease:'power1.out'}, lbl+'+=0.5');
+        // OUT — current message flies off to the RIGHT, across and over the network, staying visible then fading near the right edge
+        tl.to(hslides[i-1], {x:()=>flyR(), duration:0.95, ease:'power2.in'}, lbl);
+        tl.to(hslides[i-1], {autoAlpha:0, duration:0.4, ease:'power1.in'}, lbl+'+=0.5');
+        // IN — next message flies in from the LEFT while the current exits right (opposite sides → both visible, no collision); delayed so they stay spaced like train-cars
+        tl.fromTo(hslides[i], {x:()=>-flyL()}, {x:0, duration:0.85, ease:'power3.out'}, lbl+'+=0.42');
+        tl.fromTo(hslides[i], {autoAlpha:0}, {autoAlpha:1, duration:0.42, ease:'power1.out'}, lbl+'+=0.46');
         tl.to(hslides[i], {x:0, duration:0.45});                                               // hold so it's readable
       }
       setActive();
