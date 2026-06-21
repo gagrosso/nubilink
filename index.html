@@ -205,7 +205,7 @@
   .hero-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(80% 70% at 32% 46%,rgba(10,10,12,.72),transparent 60%)}
   /* ---- hero scroll carousel (messages fly in from the right, exit to the right) ---- */
   [data-nbherogrid]>div{min-width:0}                 /* let the stacked slides clip instead of inflating the column */
-  .hero-vp{position:relative;overflow:hidden;min-width:0}
+  .hero-vp{position:relative;overflow:visible;min-width:0;z-index:3}
   .hero-track{position:relative}
   .hero-slide{width:100%;display:flex;flex-direction:column;will-change:transform,opacity}
   .hero-slide:not(:first-child){position:absolute;top:0;left:0;opacity:0;visibility:hidden}
@@ -779,7 +779,7 @@ function homePage(t){
       <div class="hero-grid" aria-hidden="true"></div>
       <div class="hero-scrim" aria-hidden="true"></div>
       <div style="position:relative;z-index:2;width:100%;max-width:1220px;margin:0 auto;padding:64px 28px 84px;display:grid;grid-template-columns:1.05fr 0.95fr;gap:56px;align-items:center" data-nbherogrid>
-        <div>
+        <div style="position:relative;z-index:3">
           <div data-reveal style="display:inline-flex;align-items:center;gap:14px;margin-bottom:26px;flex-wrap:wrap">
             <span style="display:inline-flex;align-items:center;gap:10px;border:1px solid rgba(255,153,0,0.45);border-radius:999px;padding:7px 16px">
               <span style="font-family:'Poppins';font-weight:700;font-size:12px;color:#FF9900">AWS</span>
@@ -809,7 +809,7 @@ function homePage(t){
             ${t.heroStats.map((s,i) => `${i?'<div style="width:1px;height:40px;background:var(--b-strong);align-self:center"></div>':''}<div style="display:flex;flex-direction:column;gap:3px"><span style="font-family:'Poppins';font-weight:700;font-size:clamp(26px,3vw,32px);color:#fff;letter-spacing:-0.02em">${e(s.n)}</span><span style="font-size:12.5px;line-height:1.3;color:var(--t2);max-width:150px">${e(s.l)}</span></div>`).join('')}
           </div>
         </div>
-        <div data-reveal style="position:relative">
+        <div data-reveal style="position:relative;z-index:1">
           <div style="position:relative;aspect-ratio:1/1;width:100%">
             <div aria-hidden="true" style="position:absolute;inset:-8%;border-radius:50%;background:radial-gradient(circle at 50% 46%,rgba(4,3,7,0.96),rgba(4,3,7,0.78) 44%,rgba(4,3,7,0.32) 62%,transparent 74%)"></div>
             <div id="nbCloud" style="position:absolute;inset:0" aria-label="Red de infraestructura cloud de Nubilink: nodos enlazados con datos en movimiento" role="img"></div>
@@ -1839,7 +1839,7 @@ function initFilm(){
     if(hero && htrack && hslides.length>1){
       const n=hslides.length;
       const vpw=()=> hvp ? hvp.clientWidth : window.innerWidth;
-      const flyX=()=> Math.round(vpw()*1.08 + 24);   // park fully off the column's right edge (clipped)
+      const flyX=()=> Math.round(window.innerWidth - hvp.getBoundingClientRect().left + 60);   // fully off the RIGHT screen edge → messages fly across, over the network
       if(hdotsWrap) hdotsWrap.style.display='flex';
       const setActive=()=>{
         let best=0, bestScore=-Infinity;
@@ -1860,12 +1860,12 @@ function initFilm(){
       tl.to(hslides[0], {x:0, duration:0.5});                                                  // hold first message
       for(let i=1;i<n;i++){
         const lbl='m'+i; tl.addLabel(lbl);
-        // OUT — current message flies off to the right, fading FAST so it's gone before the next arrives at center
-        tl.to(hslides[i-1], {x:()=>flyX(), duration:0.66, ease:'power2.in'}, lbl);
-        tl.to(hslides[i-1], {autoAlpha:0, duration:0.34, ease:'power1.in'}, lbl);
-        // IN — next message flies in from the right; opacity rises only as it nears centre (no mid-screen collision)
-        tl.fromTo(hslides[i], {x:()=>flyX()}, {x:0, duration:0.74, ease:'power3.out'}, lbl+'+=0.36');
-        tl.fromTo(hslides[i], {autoAlpha:0}, {autoAlpha:1, duration:0.5, ease:'power1.out'}, lbl+'+=0.46');
+        // OUT — current message flies off to the right, across the network, fading to a faint ghost as it goes (so the incoming dominates the cross)
+        tl.to(hslides[i-1], {x:()=>flyX(), duration:0.95, ease:'power2.in'}, lbl);
+        tl.to(hslides[i-1], {autoAlpha:0, duration:0.42, ease:'power2.in'}, lbl+'+=0.18');
+        // IN — next message flies in boldly from off-screen right WHILE the current is still leaving (overlap; both glide over the network, no hard collision)
+        tl.fromTo(hslides[i], {x:()=>flyX()}, {x:0, duration:0.9, ease:'power3.out'}, lbl+'+=0.45');
+        tl.fromTo(hslides[i], {autoAlpha:0}, {autoAlpha:1, duration:0.5, ease:'power1.out'}, lbl+'+=0.5');
         tl.to(hslides[i], {x:0, duration:0.45});                                               // hold so it's readable
       }
       setActive();
