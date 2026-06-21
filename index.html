@@ -90,10 +90,10 @@
   .client-stage:hover .client-track.is-marquee{animation-play-state:paused}
   @keyframes nbMarquee{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
   @media (prefers-reduced-motion:reduce){ .client-track.is-marquee{animation:none;width:auto;flex-wrap:wrap;justify-content:center;gap:24px 46px} }
-  .client-float{height:clamp(30px,4.3vw,46px);width:auto;flex:0 0 auto;display:block;filter:grayscale(1);opacity:.46;transition:opacity .3s ease,filter .3s ease}
+  .client-float{height:clamp(30px,4.3vw,46px);width:auto;flex:0 0 auto;display:block;filter:grayscale(1) contrast(1.05);opacity:.78;transition:opacity .3s ease,filter .3s ease}
   .client-track.is-marquee .client-float{margin:0 clamp(22px,2.7vw,46px)}
   .client-track:not(.is-marquee) .client-float[aria-hidden="true"]{display:none}
-  @media (hover:hover) and (pointer:fine){ .client-float:hover{opacity:.95;filter:grayscale(0)} }
+  @media (hover:hover) and (pointer:fine){ .client-float:hover{opacity:1;filter:grayscale(0)} }
 
   /* ---- film grain (global, static texture) ---- */
   /* film grain — no blend mode (mix-blend on a fixed full-screen layer forces a costly re-blend on every scroll frame) */
