@@ -200,11 +200,12 @@
      -webkit-mask-image:radial-gradient(120% 90% at 50% 30%,#000 30%,transparent 78%);
      mask-image:radial-gradient(120% 90% at 50% 30%,#000 30%,transparent 78%)}
   .hero-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(80% 70% at 32% 46%,rgba(10,10,12,.72),transparent 60%)}
-  /* ---- hero scroll carousel ---- */
-  [data-nbherogrid]>div{min-width:0}                 /* let the flex track clip instead of inflating the column */
-  .hero-vp{overflow:hidden;min-width:0}
-  .hero-track{display:flex;will-change:transform}
-  .hero-slide{flex:0 0 100%;min-width:0;display:flex;flex-direction:column;will-change:opacity}
+  /* ---- hero scroll carousel (messages fly in from the right, exit to the right) ---- */
+  [data-nbherogrid]>div{min-width:0}                 /* let the stacked slides clip instead of inflating the column */
+  .hero-vp{position:relative;overflow:hidden;min-width:0}
+  .hero-track{position:relative}
+  .hero-slide{width:100%;display:flex;flex-direction:column;will-change:transform,opacity}
+  .hero-slide:not(:first-child){position:absolute;top:0;left:0;opacity:0;visibility:hidden}
   .hero-h1{font-weight:700;font-size:clamp(37px,5.2vw,64px);line-height:1.05;color:#fff;margin:0 0 22px;text-wrap:balance}
   .hero-sub{font-size:clamp(16px,1.5vw,19px);line-height:1.62;color:var(--t1);max-width:560px;margin:0 0 32px}
   .hero-ctas{display:flex;flex-wrap:wrap;gap:14px}
@@ -1848,7 +1849,7 @@ function initFilm(){
       }
     }
 
-    // HERO CAROUSEL — pin the cover; headline/sub/CTAs slide right→left as you scroll down (and back when scrolling up)
+    // HERO CAROUSEL — pin the cover; each message FLIES IN from off-screen right, holds, then flies OUT to the right (reverses on scroll up)
     const hero=document.querySelector('[data-hero]');
     const hvp=document.querySelector('[data-hero-vp]');
     const htrack=document.querySelector('[data-hero-track]');
@@ -1858,15 +1859,17 @@ function initFilm(){
     if(hero && htrack && hslides.length>1){
       const n=hslides.length;
       const vpw=()=> hvp ? hvp.clientWidth : window.innerWidth;
+      const flyX=()=> Math.round(vpw()*1.08 + 24);   // park fully off the column's right edge (clipped)
       if(hdotsWrap) hdotsWrap.style.display='flex';
       const setActive=()=>{
-        const w=vpw();
-        const pos = w ? (-(parseFloat(gsap.getProperty(htrack,'x'))||0)/w) : 0;
-        hslides.forEach((sl,i)=>{ sl.style.opacity=String(gsap.utils.clamp(0,1, 1-Math.abs(i-pos))); });
-        const idx=Math.round(pos);
-        hdots.forEach((d,i)=>d.classList.toggle('on', i===idx));
+        let best=0, bestScore=-Infinity;
+        hslides.forEach((sl,i)=>{ const op=parseFloat(gsap.getProperty(sl,'opacity'))||0; const x=Math.abs(parseFloat(gsap.getProperty(sl,'x'))||0); const score=op*100000-x; if(score>bestScore){ bestScore=score; best=i; } });
+        hdots.forEach((d,i)=>d.classList.toggle('on', i===best));
       };
-      const perSlide = isDesk ? 0.85 : 0.7;   // viewport-heights of scroll per message
+      // initial: first message centered, the rest waiting off-screen to the right
+      gsap.set(hslides[0], {x:0, autoAlpha:1});
+      for(let i=1;i<n;i++) gsap.set(hslides[i], {x:flyX(), autoAlpha:0});
+      const perSlide = isDesk ? 0.9 : 0.72;   // viewport-heights of scroll per message
       const tl=gsap.timeline({
         scrollTrigger:{
           trigger:hero, start:'top top', end:()=>'+='+Math.round((n-1)*perSlide*window.innerHeight),
@@ -1874,10 +1877,16 @@ function initFilm(){
           onUpdate:setActive, onRefresh:setActive
         }
       });
-      tl.to(htrack,{x:0,duration:0.4});                                  // brief dwell on slide 1
+      tl.to(hslides[0], {x:0, duration:0.5});                                                  // hold first message
       for(let i=1;i<n;i++){
-        tl.to(htrack,{x:()=>-i*vpw(), duration:1, ease:'power2.inOut'}); // slide right→left to next message
-        tl.to(htrack,{x:()=>-i*vpw(), duration:0.55});                   // dwell so each message is readable
+        const lbl='m'+i; tl.addLabel(lbl);
+        // OUT — current message flies off to the right, fading FAST so it's gone before the next arrives at center
+        tl.to(hslides[i-1], {x:()=>flyX(), duration:0.66, ease:'power2.in'}, lbl);
+        tl.to(hslides[i-1], {autoAlpha:0, duration:0.34, ease:'power1.in'}, lbl);
+        // IN — next message flies in from the right; opacity rises only as it nears centre (no mid-screen collision)
+        tl.fromTo(hslides[i], {x:()=>flyX()}, {x:0, duration:0.74, ease:'power3.out'}, lbl+'+=0.36');
+        tl.fromTo(hslides[i], {autoAlpha:0}, {autoAlpha:1, duration:0.5, ease:'power1.out'}, lbl+'+=0.46');
+        tl.to(hslides[i], {x:0, duration:0.45});                                               // hold so it's readable
       }
       setActive();
       hdots.forEach((d,i)=>{
