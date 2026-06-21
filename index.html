@@ -101,6 +101,7 @@
     html.gsap-ready [data-reveal]{opacity:0}
     html.gsap-ready [data-reveal-pop]{opacity:0}
     html.gsap-ready [data-hero-h1]{opacity:0}
+    html.gsap-ready [data-statement]{opacity:0}
   }
 
   /* ---- helpers ---- */
@@ -374,6 +375,13 @@ const LANG = {
       {n:'Select Tier', l:'AWS Consulting Partner'},
       {n:'6', l:'pilares Well-Architected'}
     ],
+    manifestoEyebrow:'En pocas palabras',
+    statements:[
+      {tag:'AR · ES · US', a:'Una nube, operada en ', hi:'tres países', b:'.'},
+      {tag:'24/7 · nearshore', a:'Soporte que no descansa, ', hi:'en tu idioma', b:'.'},
+      {tag:'Well-Architected', a:'Migraciones por fases, ', hi:'sin downtime', b:'.'},
+      {tag:'AWS Select Tier', a:'Un partner ', hi:'certificado', b:', no un proveedor más.'}
+    ],
     ctaBandTitle:'Nubilink. La inversión que rinde.', ctaBandSub:'Hablemos de cómo llevar tu infraestructura cloud al siguiente nivel — con un partner que te escucha.',
     ctaBandBtn:'Agenda una llamada',
     aboutEyebrow:'Nuestra empresa',
@@ -520,6 +528,13 @@ const LANG = {
       {n:'+25', l:'years of track record'},
       {n:'Select Tier', l:'AWS Consulting Partner'},
       {n:'6', l:'Well-Architected pillars'}
+    ],
+    manifestoEyebrow:'In a few words',
+    statements:[
+      {tag:'AR · ES · US', a:'One cloud, operated across ', hi:'three countries', b:'.'},
+      {tag:'24/7 · nearshore', a:'Support that never sleeps, ', hi:'in your language', b:'.'},
+      {tag:'Well-Architected', a:'Phased migrations, ', hi:'zero downtime', b:'.'},
+      {tag:'AWS Select Tier', a:'A ', hi:'certified', b:' partner, not just another vendor.'}
     ],
     ctaBandTitle:'Nubilink. The investment that pays off.', ctaBandSub:'Let’s talk about taking your cloud infrastructure to the next level — with a partner that listens.',
     ctaBandBtn:'Book a call',
@@ -958,6 +973,22 @@ function homePage(t){
               <g fill="#FF4DA6"><circle cx="62" cy="150" r="4"/><circle cx="150" cy="96" r="4"/><circle cx="70" cy="60" r="4"/></g>
             </svg>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MANIFESTO — bold statements that slide in from the side as you scroll -->
+    <section class="nb-seamed" style="position:relative;overflow:hidden;background:var(--s0);border-top:1px solid var(--b-soft);border-bottom:1px solid var(--b-soft);padding:clamp(76px,12vw,150px) 28px">
+      <div class="orb" style="width:560px;height:560px;right:-150px;top:-120px;background:radial-gradient(circle,rgba(230,0,126,.22),transparent 60%);opacity:.5"></div>
+      <div class="orb" style="width:480px;height:480px;left:-150px;bottom:-130px;background:radial-gradient(circle,rgba(255,77,166,.18),transparent 60%);opacity:.45"></div>
+      <div class="hero-grid" aria-hidden="true" style="opacity:.14;z-index:0"></div>
+      <div style="position:relative;z-index:1;max-width:1180px;margin:0 auto">
+        <div data-reveal class="mono" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:clamp(40px,6vw,72px);font-size:11px;color:#FF4DA6"><span class="nb-emk"></span>${e(t.manifestoEyebrow)}</div>
+        <div style="display:flex;flex-direction:column;gap:clamp(38px,6vw,76px)">
+          ${t.statements.map((s,i) => { const side = i%2 ? 'right' : 'left'; return `<div data-statement="${side}" style="display:flex;flex-direction:column;gap:14px;max-width:900px;will-change:transform${side==='right'?';margin-left:auto;align-items:flex-end;text-align:right':';align-items:flex-start;text-align:left'}">
+            <span class="mono" style="display:inline-flex;align-items:center;gap:9px;font-size:11px;color:#FF4DA6;border:1px solid rgba(255,77,166,.3);border-radius:999px;padding:6px 13px"><span class="nb-dot"></span>${e(s.tag)}</span>
+            <p style="font-family:'Poppins';font-weight:700;font-size:clamp(28px,5.4vw,62px);line-height:1.05;letter-spacing:-0.035em;color:#fff;margin:0">${e(s.a)}<span class="grad-shimmer">${e(s.hi)}</span>${e(s.b)}</p>
+          </div>`; }).join('')}
         </div>
       </div>
     </section>
@@ -1782,6 +1813,7 @@ function initFilm(){
     if(isReduce){
       gsap.set('[data-reveal]', {opacity:1, y:0, clearProps:'opacity,transform'});
       gsap.set('[data-reveal-pop]', {opacity:1, y:0, scale:1, clearProps:'opacity,transform'});
+      gsap.set('[data-statement]', {opacity:1, x:0, clearProps:'opacity,transform'});
       if(h1) gsap.set(h1,{autoAlpha:1});
       document.querySelectorAll('[data-countup]').forEach(el=>{ el.textContent=el.getAttribute('data-countup')+(el.getAttribute('data-suffix')||''); });
       return;
@@ -1806,6 +1838,17 @@ function initFilm(){
       start:'top 88%', once:true,
       onEnter: b => b.forEach((el,i)=>{ const f=RV[el.getAttribute('data-reveal')]||RV.up; gsap.fromTo(el, Object.assign({opacity:0},f), {opacity:1,x:0,y:0,scale:1,duration:0.78,ease:'power3.out',delay:i*0.06,overwrite:true,clearProps:'transform'}); })
     });
+
+    // MANIFESTO — statements slide in from the side, scrubbed to scroll (carousel feel)
+    const stmts=gsap.utils.toArray('[data-statement]');
+    if(stmts.length){
+      const travel=isDesk?360:120;
+      stmts.forEach(el=>{
+        const dir = el.getAttribute('data-statement')==='right' ? 1 : -1;
+        gsap.fromTo(el, {x:dir*travel, opacity:0}, {x:0, opacity:1, ease:'none', overwrite:true,
+          scrollTrigger:{ trigger:el, start:'top 92%', end:'top 48%', scrub:true }});
+      });
+    }
 
     // partner cards — pop in one by one when the grid actually scrolls into view
     const pgrid=document.querySelector('.partner-grid');
