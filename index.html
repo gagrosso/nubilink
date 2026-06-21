@@ -101,7 +101,6 @@
     html.gsap-ready [data-reveal]{opacity:0}
     html.gsap-ready [data-reveal-pop]{opacity:0}
     html.gsap-ready [data-hero-h1]{opacity:0}
-    html.gsap-ready [data-statement]{opacity:0}
   }
 
   /* ---- helpers ---- */
@@ -201,6 +200,21 @@
      -webkit-mask-image:radial-gradient(120% 90% at 50% 30%,#000 30%,transparent 78%);
      mask-image:radial-gradient(120% 90% at 50% 30%,#000 30%,transparent 78%)}
   .hero-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(80% 70% at 32% 46%,rgba(10,10,12,.72),transparent 60%)}
+  /* ---- hero scroll carousel ---- */
+  [data-nbherogrid]>div{min-width:0}                 /* let the flex track clip instead of inflating the column */
+  .hero-vp{overflow:hidden;min-width:0}
+  .hero-track{display:flex;will-change:transform}
+  .hero-slide{flex:0 0 100%;min-width:0;display:flex;flex-direction:column;will-change:opacity}
+  .hero-h1{font-weight:700;font-size:clamp(37px,5.2vw,64px);line-height:1.05;color:#fff;margin:0 0 22px;text-wrap:balance}
+  .hero-sub{font-size:clamp(16px,1.5vw,19px);line-height:1.62;color:var(--t1);max-width:560px;margin:0 0 32px}
+  .hero-ctas{display:flex;flex-wrap:wrap;gap:14px}
+  .hero-dots{display:none;align-items:center;gap:9px;margin:34px 0 0}
+  .hero-dot{position:relative;width:30px;height:6px;border-radius:999px;border:none;padding:0;background:rgba(255,255,255,.16);cursor:pointer;overflow:hidden;transition:background .3s ease,width .35s cubic-bezier(.16,1,.3,1)}
+  .hero-dot::after{content:"";position:absolute;inset:0;background:var(--grad);transform:scaleX(0);transform-origin:left;transition:transform .4s cubic-bezier(.16,1,.3,1)}
+  .hero-dot.on{width:46px}
+  .hero-dot.on::after{transform:scaleX(1)}
+  @media (hover:hover) and (pointer:fine){ .hero-dot:hover{background:rgba(255,255,255,.3)} }
+  @media (max-width:980px){ .hero-dots{justify-content:flex-start} }
 
   /* ---- services horizontal act (signature) ---- */
   .svc-act{position:relative;background:var(--s0);overflow:hidden}
@@ -375,12 +389,16 @@ const LANG = {
       {n:'Select Tier', l:'AWS Consulting Partner'},
       {n:'6', l:'pilares Well-Architected'}
     ],
-    manifestoEyebrow:'En pocas palabras',
-    statements:[
-      {tag:'AR · ES · US', a:'Una nube, operada en ', hi:'tres países', b:'.'},
-      {tag:'24/7 · nearshore', a:'Soporte que no descansa, ', hi:'en tu idioma', b:'.'},
-      {tag:'Well-Architected', a:'Migraciones por fases, ', hi:'sin downtime', b:'.'},
-      {tag:'AWS Select Tier', a:'Un partner ', hi:'certificado', b:', no un proveedor más.'}
+    heroSlides:[
+      {a:'Tu infraestructura, ', hi:'viva en la nube', b:' y bajo control.',
+       sub:'Diseñamos, migramos y optimizamos arquitecturas AWS Well-Architected para gobiernos, universidades y empresas que no pueden permitirse downtime.',
+       c1:{l:'Diagnóstico gratuito', act:'contact'}, c2:{l:'Ver servicios', act:'services'}},
+      {a:'Hasta un ', hi:'25% menos', b:' en tu factura de AWS.',
+       sub:'FinOps continuo: ajustamos los recursos a tu demanda real, aprovechamos Savings Plans y reservas, y eliminamos lo que no se usa — sin tocar el rendimiento.',
+       c1:{l:'Calcular mi ahorro', to:'#nb-calc'}, c2:{l:'Diagnóstico gratuito', act:'contact'}},
+      {a:'Una nube, operada en ', hi:'tres países', b:'.',
+       sub:'Equipos nearshore en Argentina, España y Estados Unidos: monitorización y soporte 24/7, en tu franja horaria y sin barreras de idioma.',
+       c1:{l:'Hablar con el equipo', act:'contact'}, c2:{l:'Ver cobertura', to:'#nb-nearshore'}}
     ],
     ctaBandTitle:'Nubilink. La inversión que rinde.', ctaBandSub:'Hablemos de cómo llevar tu infraestructura cloud al siguiente nivel — con un partner que te escucha.',
     ctaBandBtn:'Agenda una llamada',
@@ -529,12 +547,16 @@ const LANG = {
       {n:'Select Tier', l:'AWS Consulting Partner'},
       {n:'6', l:'Well-Architected pillars'}
     ],
-    manifestoEyebrow:'In a few words',
-    statements:[
-      {tag:'AR · ES · US', a:'One cloud, operated across ', hi:'three countries', b:'.'},
-      {tag:'24/7 · nearshore', a:'Support that never sleeps, ', hi:'in your language', b:'.'},
-      {tag:'Well-Architected', a:'Phased migrations, ', hi:'zero downtime', b:'.'},
-      {tag:'AWS Select Tier', a:'A ', hi:'certified', b:' partner, not just another vendor.'}
+    heroSlides:[
+      {a:'Your infrastructure, ', hi:'alive in the cloud', b:' and under control.',
+       sub:'We design, migrate and optimize AWS Well-Architected architectures for governments, universities and companies that can’t afford downtime.',
+       c1:{l:'Free assessment', act:'contact'}, c2:{l:'See services', act:'services'}},
+      {a:'Up to ', hi:'25% less', b:' on your AWS bill.',
+       sub:'Continuous FinOps: we right-size resources to your real demand, leverage Savings Plans and reservations, and cut what isn’t used — without touching performance.',
+       c1:{l:'Calculate my savings', to:'#nb-calc'}, c2:{l:'Free assessment', act:'contact'}},
+      {a:'One cloud, operated across ', hi:'three countries', b:'.',
+       sub:'Nearshore teams in Argentina, Spain and the United States: 24/7 monitoring and support, in your time zone and with no language barriers.',
+       c1:{l:'Talk to the team', act:'contact'}, c2:{l:'See coverage', to:'#nb-nearshore'}}
     ],
     ctaBandTitle:'Nubilink. The investment that pays off.', ctaBandSub:'Let’s talk about taking your cloud infrastructure to the next level — with a partner that listens.',
     ctaBandBtn:'Book a call',
@@ -762,11 +784,22 @@ function homePage(t){
             </span>
             <span class="mono" style="font-size:11px;color:#FF4DA6">${e(t.heroEyebrowKind)}</span>
           </div>
-          <h1 data-hero-h1 style="font-family:'Poppins';font-weight:700;font-size:clamp(37px,5.2vw,64px);line-height:1.05;letter-spacing:-0.035em;color:#fff;margin:0 0 22px;text-wrap:balance">${e(t.heroA)}<span class="grad-shimmer">${e(t.heroHi)}</span>${e(t.heroEnd)}</h1>
-          <p data-reveal style="font-size:clamp(16px,1.5vw,19px);line-height:1.62;color:var(--t1);max-width:560px;margin:0 0 34px">${e(t.heroSub)}</p>
-          <div data-reveal style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:40px">
-            <button data-act="contact" data-magnetic class="cta-glow" style="display:inline-flex;align-items:center;gap:9px;border:none;background:${GRAD};color:#fff;font-family:'Poppins';font-weight:600;font-size:16px;cursor:pointer;padding:15px 28px;border-radius:999px">${e(t.heroCta1)} <span class="cta-arr" style="font-size:17px">&rarr;</span></button>
-            <button data-act="services" class="btn-ghost" style="display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,0.04);border:1px solid var(--b-strong);color:#fff;font-family:'Poppins';font-weight:500;font-size:16px;cursor:pointer;padding:15px 28px;border-radius:999px">${e(t.heroCta2)}</button>
+          <div class="hero-vp" data-hero-vp>
+            <div class="hero-track" data-hero-track>
+              ${t.heroSlides.map((s,i) => `<div class="hero-slide" data-hero-slide>
+                ${i===0
+                  ? `<h1 class="hero-h1" data-hero-h1>${e(s.a)}<span class="grad-shimmer">${e(s.hi)}</span>${e(s.b)}</h1>`
+                  : `<p class="hero-h1 nb-display" role="heading" aria-level="2">${e(s.a)}<span class="grad-shimmer">${e(s.hi)}</span>${e(s.b)}</p>`}
+                <p class="hero-sub">${e(s.sub)}</p>
+                <div class="hero-ctas">
+                  <button ${s.c1.act?`data-act="${s.c1.act}"`:`data-scrollto="${s.c1.to}"`} data-magnetic class="cta-glow" style="display:inline-flex;align-items:center;gap:9px;border:none;background:${GRAD};color:#fff;font-family:'Poppins';font-weight:600;font-size:16px;cursor:pointer;padding:15px 28px;border-radius:999px">${e(s.c1.l)} <span class="cta-arr" style="font-size:17px">&rarr;</span></button>
+                  <button ${s.c2.act?`data-act="${s.c2.act}"`:`data-scrollto="${s.c2.to}"`} class="btn-ghost" style="display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,0.04);border:1px solid var(--b-strong);color:#fff;font-family:'Poppins';font-weight:500;font-size:16px;cursor:pointer;padding:15px 28px;border-radius:999px">${e(s.c2.l)}</button>
+                </div>
+              </div>`).join('')}
+            </div>
+          </div>
+          <div class="hero-dots" data-hero-dots>
+            ${t.heroSlides.map((s,i) => `<button class="hero-dot${i===0?' on':''}" data-hero-dot="${i}" type="button" aria-label="${e(state.lang==='es'?'Mensaje':'Message')} ${i+1}"></button>`).join('')}
           </div>
           <div data-reveal style="display:flex;flex-wrap:wrap;gap:26px;align-items:flex-start">
             ${t.heroStats.map((s,i) => `${i?'<div style="width:1px;height:40px;background:var(--b-strong);align-self:center"></div>':''}<div style="display:flex;flex-direction:column;gap:3px"><span style="font-family:'Poppins';font-weight:700;font-size:clamp(26px,3vw,32px);color:#fff;letter-spacing:-0.02em">${e(s.n)}</span><span style="font-size:12.5px;line-height:1.3;color:var(--t2);max-width:150px">${e(s.l)}</span></div>`).join('')}
@@ -813,7 +846,7 @@ function homePage(t){
     </section>
 
     <!-- SAVINGS CALCULATOR (interactive — makes the 25% tangible) -->
-    <section class="nb-seamed" style="background:var(--s1);padding:clamp(60px,8vw,100px) 28px;position:relative;overflow:hidden">
+    <section id="nb-calc" class="nb-seamed" style="background:var(--s1);padding:clamp(60px,8vw,100px) 28px;position:relative;overflow:hidden;scroll-margin-top:84px">
       <div class="orb" style="width:480px;height:480px;right:-130px;top:6%;background:radial-gradient(circle,rgba(255,77,166,.32),transparent 60%);opacity:.5"></div>
       <div style="position:relative;z-index:1;max-width:1040px;margin:0 auto">
         <div style="max-width:700px;margin-bottom:38px">
@@ -948,7 +981,7 @@ function homePage(t){
     </section>
 
     <!-- GLOBAL PRESENCE — 3D globe with AR·ES·US arcs -->
-    <section style="background:var(--s0);padding:clamp(64px,8vw,108px) 28px;position:relative;overflow:hidden">
+    <section id="nb-nearshore" style="background:var(--s0);padding:clamp(64px,8vw,108px) 28px;position:relative;overflow:hidden;scroll-margin-top:84px">
       <div class="orb" style="width:520px;height:520px;left:-140px;bottom:-120px;background:radial-gradient(circle,rgba(230,0,126,.26),transparent 60%);opacity:.5"></div>
       <div style="position:relative;z-index:1;max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,5vw,64px);align-items:center" data-nbhalf>
         <div>
@@ -973,22 +1006,6 @@ function homePage(t){
               <g fill="#FF4DA6"><circle cx="62" cy="150" r="4"/><circle cx="150" cy="96" r="4"/><circle cx="70" cy="60" r="4"/></g>
             </svg>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- MANIFESTO — bold statements that slide in from the side as you scroll -->
-    <section class="nb-seamed" style="position:relative;overflow:hidden;background:var(--s0);border-top:1px solid var(--b-soft);border-bottom:1px solid var(--b-soft);padding:clamp(76px,12vw,150px) 28px">
-      <div class="orb" style="width:560px;height:560px;right:-150px;top:-120px;background:radial-gradient(circle,rgba(230,0,126,.22),transparent 60%);opacity:.5"></div>
-      <div class="orb" style="width:480px;height:480px;left:-150px;bottom:-130px;background:radial-gradient(circle,rgba(255,77,166,.18),transparent 60%);opacity:.45"></div>
-      <div class="hero-grid" aria-hidden="true" style="opacity:.14;z-index:0"></div>
-      <div style="position:relative;z-index:1;max-width:1180px;margin:0 auto">
-        <div data-reveal class="mono" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:clamp(40px,6vw,72px);font-size:11px;color:#FF4DA6"><span class="nb-emk"></span>${e(t.manifestoEyebrow)}</div>
-        <div style="display:flex;flex-direction:column;gap:clamp(38px,6vw,76px)">
-          ${t.statements.map((s,i) => { const side = i%2 ? 'right' : 'left'; return `<div data-statement="${side}" style="display:flex;flex-direction:column;gap:14px;max-width:900px;will-change:transform${side==='right'?';margin-left:auto;align-items:flex-end;text-align:right':';align-items:flex-start;text-align:left'}">
-            <span class="mono" style="display:inline-flex;align-items:center;gap:9px;font-size:11px;color:#FF4DA6;border:1px solid rgba(255,77,166,.3);border-radius:999px;padding:6px 13px"><span class="nb-dot"></span>${e(s.tag)}</span>
-            <p style="font-family:'Poppins';font-weight:700;font-size:clamp(28px,5.4vw,62px);line-height:1.05;letter-spacing:-0.035em;color:#fff;margin:0">${e(s.a)}<span class="grad-shimmer">${e(s.hi)}</span>${e(s.b)}</p>
-          </div>`; }).join('')}
         </div>
       </div>
     </section>
@@ -1813,7 +1830,6 @@ function initFilm(){
     if(isReduce){
       gsap.set('[data-reveal]', {opacity:1, y:0, clearProps:'opacity,transform'});
       gsap.set('[data-reveal-pop]', {opacity:1, y:0, scale:1, clearProps:'opacity,transform'});
-      gsap.set('[data-statement]', {opacity:1, x:0, clearProps:'opacity,transform'});
       if(h1) gsap.set(h1,{autoAlpha:1});
       document.querySelectorAll('[data-countup]').forEach(el=>{ el.textContent=el.getAttribute('data-countup')+(el.getAttribute('data-suffix')||''); });
       return;
@@ -1832,23 +1848,51 @@ function initFilm(){
       }
     }
 
+    // HERO CAROUSEL — pin the cover; headline/sub/CTAs slide right→left as you scroll down (and back when scrolling up)
+    const hero=document.querySelector('[data-hero]');
+    const hvp=document.querySelector('[data-hero-vp]');
+    const htrack=document.querySelector('[data-hero-track]');
+    const hslides=htrack ? gsap.utils.toArray('[data-hero-slide]', htrack) : [];
+    const hdotsWrap=document.querySelector('[data-hero-dots]');
+    const hdots=hdotsWrap ? gsap.utils.toArray('[data-hero-dot]', hdotsWrap) : [];
+    if(hero && htrack && hslides.length>1){
+      const n=hslides.length;
+      const vpw=()=> hvp ? hvp.clientWidth : window.innerWidth;
+      if(hdotsWrap) hdotsWrap.style.display='flex';
+      const setActive=()=>{
+        const w=vpw();
+        const pos = w ? (-(parseFloat(gsap.getProperty(htrack,'x'))||0)/w) : 0;
+        hslides.forEach((sl,i)=>{ sl.style.opacity=String(gsap.utils.clamp(0,1, 1-Math.abs(i-pos))); });
+        const idx=Math.round(pos);
+        hdots.forEach((d,i)=>d.classList.toggle('on', i===idx));
+      };
+      const perSlide = isDesk ? 0.85 : 0.7;   // viewport-heights of scroll per message
+      const tl=gsap.timeline({
+        scrollTrigger:{
+          trigger:hero, start:'top top', end:()=>'+='+Math.round((n-1)*perSlide*window.innerHeight),
+          pin:true, scrub:true, anticipatePin:1, invalidateOnRefresh:true,
+          onUpdate:setActive, onRefresh:setActive
+        }
+      });
+      tl.to(htrack,{x:0,duration:0.4});                                  // brief dwell on slide 1
+      for(let i=1;i<n;i++){
+        tl.to(htrack,{x:()=>-i*vpw(), duration:1, ease:'power2.inOut'}); // slide right→left to next message
+        tl.to(htrack,{x:()=>-i*vpw(), duration:0.55});                   // dwell so each message is readable
+      }
+      setActive();
+      hdots.forEach((d,i)=>{
+        const onClick=()=>{ const st=tl.scrollTrigger; if(!st) return; const p = n>1 ? i/(n-1) : 0; const y=st.start+(st.end-st.start)*p; try{ window.scrollTo({top:y, behavior:'smooth'}); }catch(_){ window.scrollTo(0,y); } };
+        d.addEventListener('click', onClick);
+        cleanups.push(()=>d.removeEventListener('click', onClick));
+      });
+    }
+
     // generic scroll reveals — batched so siblings entering together cascade (varied choreography)
     const RV={left:{x:-44,y:0},right:{x:44,y:0},up:{x:0,y:30},pop:{x:0,y:22,scale:.94}};
     ScrollTrigger.batch('[data-reveal]', {
       start:'top 88%', once:true,
       onEnter: b => b.forEach((el,i)=>{ const f=RV[el.getAttribute('data-reveal')]||RV.up; gsap.fromTo(el, Object.assign({opacity:0},f), {opacity:1,x:0,y:0,scale:1,duration:0.78,ease:'power3.out',delay:i*0.06,overwrite:true,clearProps:'transform'}); })
     });
-
-    // MANIFESTO — statements slide in from the side, scrubbed to scroll (carousel feel)
-    const stmts=gsap.utils.toArray('[data-statement]');
-    if(stmts.length){
-      const travel=isDesk?360:120;
-      stmts.forEach(el=>{
-        const dir = el.getAttribute('data-statement')==='right' ? 1 : -1;
-        gsap.fromTo(el, {x:dir*travel, opacity:0}, {x:0, opacity:1, ease:'none', overwrite:true,
-          scrollTrigger:{ trigger:el, start:'top 92%', end:'top 48%', scrub:true }});
-      });
-    }
 
     // partner cards — pop in one by one when the grid actually scrolls into view
     const pgrid=document.querySelector('.partner-grid');
@@ -1984,6 +2028,12 @@ function go(page){
 
 /* ---------- events (delegated, survive re-render) ---------- */
 app.addEventListener('click', (ev)=>{
+  const sc=ev.target.closest('[data-scrollto]');
+  if(sc && app.contains(sc)){
+    const tgt=document.querySelector(sc.getAttribute('data-scrollto'));
+    if(tgt){ const y=Math.max(0, tgt.getBoundingClientRect().top+window.pageYOffset-72); try{ window.scrollTo({top:y, behavior: prefersReduce()?'auto':'smooth'}); }catch(_){ window.scrollTo(0,y); } }
+    return;
+  }
   const trigger=ev.target.closest('[data-act]');
   if(!trigger || !app.contains(trigger)) return;
   const act=trigger.getAttribute('data-act');
